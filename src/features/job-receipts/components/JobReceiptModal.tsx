@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ActionIcon, Box, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { IconDownload, IconPrinter, IconReceipt, IconX } from '@tabler/icons-react';
+import { PERMISSIONS } from '@/constants/permissions';
 import { STORAGE_KEYS } from '@/constants/storage';
+import { useCustomerJobs } from '@/features/customer-jobs/hooks/useCustomerJobs';
 import {
   designKindFor,
   hasDesignChoice,
@@ -12,6 +14,7 @@ import { DesignUnavailableAlert } from '@/features/billing/components/DesignUnav
 import { DocumentDesignPicker } from '@/features/billing/components/DocumentDesignPicker';
 import { useDocumentTemplateSettings } from '@/features/settings/hooks/useDocumentTemplates';
 import { PdfCanvasViewer } from '@/shared/components/PdfCanvasViewer';
+import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { useAppShortcuts } from '@/shared/hooks/useShortcuts';
 import { t } from '@/shared/i18n/t';
@@ -20,7 +23,9 @@ import { printPdfBlob } from '@/shared/print/printService';
 import { useAppSelector } from '@/store/hooks';
 import { selectPrintSettings } from '@/store/slices/settingsSlice';
 import { useJobReceipt } from '../hooks/useJobReceipt';
-import type { JobReceiptPaper, JobReceiptTarget } from '../types';
+import { slipName } from '../lib/jobSlip';
+import type { JobReceiptPaper, JobSlipTarget } from '../types';
+import { SlipJobChips, type SlipChoice } from './SlipJobChips';
 
 type Sheet = 'a5' | 'receipt';
 
@@ -46,19 +51,57 @@ const rememberSheet = (sheet: Sheet) => {
 };
 
 export interface JobReceiptModalProps {
-  /** The job to print a receipt for; `null` while closed. */
-  job: JobReceiptTarget | null;
+  /** What to print a slip for; `null` while closed. */
+  target: JobSlipTarget | null;
   onClose: () => void;
 }
 
+/** Which jobs are ticked, remembered against the slip they were ticked on. */
+interface Ticked {
+  slip: string;
+  ids: string[];
+}
+
 /**
- * Full-screen preview of the receipt a customer gets when the shop receives a repair or a print
- * job, with Print and Download, on an A5 sheet or this computer's receipt roll. The receipt always
- * shows the job as it stands now; the design bar changes the design for this one print.
+ * The customer's open jobs this person may print, after the ones asked for, so a repair and a
+ * print job can go on one slip.
  */
-export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
+const useSlipChoices = (target: JobSlipTarget | null): SlipChoice[] => {
+  const mayPrint = {
+    repair: useHasPermission(PERMISSIONS.REPAIRS_WRITE),
+    print: useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE),
+  };
+  const { jobs } = useCustomerJobs(target === null ? null : target.customerKey);
+  if (target === null) return [];
+  const asked = target.jobs.map((job) => {
+    const known = jobs?.find((candidate) => candidate.id === job.id);
+    return {
+      id: job.id,
+      ticketNumber: job.ticketNumber,
+      label: known === undefined ? job.ticketNumber : `${job.ticketNumber} · ${known.title}`,
+    };
+  });
+  const others = (jobs === undefined ? [] : jobs)
+    .filter(
+      (job) =>
+        job.isOpen && mayPrint[job.kind] && !target.jobs.some((chosen) => chosen.id === job.id)
+    )
+    .map((job) => ({
+      id: job.id,
+      ticketNumber: job.ticketNumber,
+      label: `${job.ticketNumber} · ${job.title}`,
+    }));
+  return [...asked, ...others];
+};
+
+/**
+ * Full-screen preview of the slip a customer gets for the jobs they leave with the shop, with
+ * Print and Download, on an A5 sheet or this computer's receipt roll. The slip always shows the
+ * jobs as they stand now; the design bar changes the design for this one print.
+ */
+export const JobReceiptModal = ({ target, onClose }: JobReceiptModalProps) => {
   const isMobile = useIsMobile();
-  const opened = job !== null;
+  const opened = target !== null;
   const printSettings = useAppSelector(selectPrintSettings);
   const [sheet, setSheet] = useState<Sheet>(rememberedSheet);
   const paper: JobReceiptPaper =
@@ -67,19 +110,38 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
   const designKind = designKindFor('job-receipt');
   const designSettings = useDocumentTemplateSettings(opened);
   const kindSettings = designSettings.data?.kinds.find((kind) => kind.kind === designKind);
-  // A pick belongs to one job and is dropped when the preview closes.
+  const askedIds = target === null ? [] : target.jobs.map((job) => job.id);
+  const slipId = target === null ? '' : `${target.customerKey}:${askedIds.join(',')}`;
+  const [ticked, setTicked] = useState<Ticked | null>(null);
+  if (!opened && ticked !== null) {
+    setTicked(null);
+  }
+  const selected = ticked !== null && ticked.slip === slipId ? ticked.ids : askedIds;
+  const choices = useSlipChoices(target);
+  // In the order of the chips: the jobs asked for first, then the ones ticked on.
+  const slipJobs = choices.filter((choice) => selected.includes(choice.id));
+  const slipIds = slipJobs.map((job) => job.id);
+
+  // A pick belongs to one slip and is dropped when the preview closes.
   const [designPick, setDesignPick] = useState<{ id: string; name: string } | null>(null);
   if (!opened && designPick !== null) {
     setDesignPick(null);
   }
-  const pickId = job?.id ?? '';
-  const designOverride = designPick?.id === pickId ? designPick.name : undefined;
+  const designOverride = designPick?.id === slipId ? designPick.name : undefined;
 
-  const { blob, loading, error, errorCode, isPaused } = useJobReceipt(job, paper, designOverride);
+  const { blob, loading, error, errorCode, isPaused } = useJobReceipt(
+    slipIds,
+    paper,
+    designOverride
+  );
 
-  const ticketNumber = job?.ticketNumber ?? '';
-  const fileName = pdfFileName(`receipt-${ticketNumber}`);
-  const printTitle = `${t('Job slip')} ${ticketNumber}`;
+  const name = slipJobs.length === 0 ? '' : slipName(slipJobs, t('jobs'));
+  const fileName = pdfFileName(
+    slipJobs.length > 1
+      ? `receipt-${slipJobs[0].ticketNumber}-and-${slipJobs.length - 1}-more`
+      : `receipt-${name}`
+  );
+  const printTitle = `${t('Job slip')} ${name}`;
 
   const handlePrint = () => {
     if (!blob) return;
@@ -140,12 +202,12 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
           <Group gap="xs" wrap="nowrap">
             <IconReceipt size={20} color="var(--mantine-color-blue-6)" />
             <Text fw={700} size="sm" truncate>
-              {t('Job slip')} {ticketNumber}
+              {t('Job slip')} {slipJobs.length > 1 ? `· ${name}` : name}
             </Text>
           </Group>
-          {job !== null && (
+          {target !== null && (
             <Text size="xs" c="dimmed" truncate>
-              {job.customerName}
+              {target.customerName}
             </Text>
           )}
         </Stack>
@@ -202,13 +264,21 @@ export const JobReceiptModal = ({ job, onClose }: JobReceiptModalProps) => {
         </Group>
       </Box>
 
+      {choices.length > 1 && (
+        <SlipJobChips
+          choices={choices}
+          selected={slipIds}
+          onChange={(ids) => setTicked({ slip: slipId, ids })}
+        />
+      )}
+
       {hasDesignChoice(kindSettings) && (
         <DocumentDesignPicker
           kind={kindSettings}
           value={designOverride ?? kindSettings.effective}
           onChange={(name) => {
             const next = nextDesignPick(kindSettings, name);
-            setDesignPick(next === null ? null : { id: pickId, name: next });
+            setDesignPick(next === null ? null : { id: slipId, name: next });
           }}
         />
       )}

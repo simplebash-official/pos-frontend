@@ -96,15 +96,11 @@ export const fetchPrintJobs = async (params?: FetchPrintJobsParams): Promise<Pri
   return response.data.printJobs.map(toPrintJob);
 };
 
-/**
- * Every print job, looping past the backend's 200-per-page cap — for the
- * unfiltered `PrintJobList` default view, which must not silently truncate
- * a shop's job history once it grows past one page.
- */
-export const fetchAllPrintJobs = async (): Promise<PrintJob[]> => {
+/** Every matching job, looping past the backend's 200-per-page cap. */
+const fetchEveryPage = async (filter: { customerKey?: string }): Promise<PrintJob[]> => {
   const fetchPage = async (page: number) => {
     const response = await apiClient.get<ApiResponse<PrintJobListResponseData>>('/print-jobs', {
-      params: { page, limit: 200 },
+      params: { page, limit: 200, ...filter },
     });
     return response.data;
   };
@@ -117,6 +113,16 @@ export const fetchAllPrintJobs = async (): Promise<PrintJob[]> => {
   }
   return printJobs.map(toPrintJob);
 };
+
+/**
+ * Every print job — for the unfiltered `PrintJobList` default view, which must not silently
+ * truncate a shop's job history once it grows past one page.
+ */
+export const fetchAllPrintJobs = (): Promise<PrintJob[]> => fetchEveryPage({});
+
+/** Every print job of one customer. */
+export const fetchCustomerPrintJobs = (customerKey: string): Promise<PrintJob[]> =>
+  fetchEveryPage({ customerKey });
 
 export const createPrintJobRaw = async (input: PrintJobInput): Promise<PrintJob> => {
   const response = await apiClient.post<ApiResponse<BackendPrintJob>>('/print-jobs', input);

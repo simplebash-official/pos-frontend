@@ -38,6 +38,14 @@ export interface PrintJobEditorOptions {
   onSaved: () => void;
 }
 
+/** The empty form for the same customer's next order. */
+const nextForSameCustomer = (saved: PrintJobFormValues): PrintJobFormValues => ({
+  ...fromPrintJob(null),
+  customerKey: saved.customerKey,
+  customerName: saved.customerName,
+  customerPhone: saved.customerPhone,
+});
+
 /** The rows without their on-screen ids, to tell whether anything was changed. */
 const rowsSignature = (drafts: PrintDraft[]): string =>
   snapshot(drafts.map(({ uid: _uid, ...rest }) => rest));
@@ -137,11 +145,12 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
       ? job.id
       : null;
 
-  const handleSubmit = async (values: PrintJobFormValues, billAfterSave: string | null) => {
+  /** Saves what is typed; `false` when something on the form stops it. */
+  const save = async (values: PrintJobFormValues) => {
     setTried(true);
     if (workProblem !== null) {
       notify.error({ title: t('Cannot save the print job'), message: workProblem });
-      return;
+      return false;
     }
     // Lines are sent only when they changed, so saving a note never fails because stock moved.
     const sendItems = !workLocked && (job === null || rowsChanged);
@@ -150,6 +159,11 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
       note: job === null || values.note !== loaded.note,
     });
     await onSubmit(payload);
+    return true;
+  };
+
+  const handleSubmit = async (values: PrintJobFormValues, billAfterSave: string | null) => {
+    if (!(await save(values))) return;
     onSaved();
     if (billAfterSave !== null) navigate(`${ROUTES.BILLING}?billPrint=${billAfterSave}`);
   };
@@ -159,6 +173,23 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
     handleSubmit(values, jobId).catch((error: unknown) =>
       notify.error({ title: t('Could not save the print job'), message: getErrorMessage(error) })
     );
+
+  /** Saves this order and leaves the form open, empty, for the same customer's next one. */
+  const addAnother = async (values: PrintJobFormValues) => {
+    try {
+      if (!(await save(values))) return;
+    } catch (error) {
+      notify.error({ title: t('Could not save the print job'), message: getErrorMessage(error) });
+      return;
+    }
+    const next = nextForSameCustomer(values);
+    form.setValues(next);
+    form.clearErrors();
+    setDrafts([]);
+    setLoaded({ values: snapshot(next), rows: rowsSignature([]), note: next.note });
+    setTried(false);
+    form.getInputNode('quantity')?.focus();
+  };
 
   // The customer card sits at the top of the form, already in view; the other fields may not be.
   const focusFirstError = (keys: string[]) => {
@@ -204,6 +235,7 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
     billJobId,
     statusOptions,
     handleSubmit,
+    addAnother,
     billAfterSave,
   };
 };

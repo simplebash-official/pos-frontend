@@ -41,6 +41,11 @@ export interface CompleteSaleItemInput {
   warrantyOverride?: ProductWarranty;
   /** Required on a repair or print line that names its ticket, refused on any other line. */
   handover?: Handover;
+  /**
+   * The job's own customer, sent when someone else is billed and the cashier confirmed it;
+   * refused otherwise.
+   */
+  confirmedJobCustomerKey?: string;
 }
 
 export interface CompleteSaleSplitPaymentInput {

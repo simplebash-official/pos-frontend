@@ -106,8 +106,8 @@ export const queryKeys = {
       ['warranties', 'card', key, paper, template, version] as const,
   },
   jobReceipts: {
-    pdf: (kind: string, id: string, paper: string, template: string | undefined) =>
-      ['jobReceipts', kind, id, paper, template] as const,
+    pdf: (jobIds: readonly string[], paper: string, template: string | undefined) =>
+      ['jobReceipts', jobIds, paper, template] as const,
   },
   warrantyClaims: {
     all: ['warrantyClaims'] as const,

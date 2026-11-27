@@ -14,22 +14,16 @@ import type { PrintJob } from '@/features/print-jobs';
 import * as printJobsApi from '@/features/print-jobs/api/printJobsApi';
 import type { RepairJob } from '@/features/repairs';
 import * as repairsApi from '@/features/repairs/api/repairsApi';
-import * as resolveCustomer from '../../lib/resolveOrCreateCustomer';
 import { useBillJobLink } from '../useBillJobLink';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 vi.mock('@/features/repairs/api/repairsApi', () => ({ fetchRepairJob: vi.fn() }));
 vi.mock('@/features/print-jobs/api/printJobsApi', () => ({ fetchPrintJob: vi.fn() }));
-vi.mock('../../lib/resolveOrCreateCustomer', () => ({ resolveOrCreateCustomer: vi.fn() }));
-vi.mock('@/features/customers', () => ({
-  useCreateCustomer: () => ({ mutateAsync: vi.fn() }),
-}));
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
 
 const fetchRepairJob = vi.mocked(repairsApi.fetchRepairJob);
 const fetchPrintJob = vi.mocked(printJobsApi.fetchPrintJob);
-const resolveOrCreateCustomer = vi.mocked(resolveCustomer.resolveOrCreateCustomer);
 const show = vi.mocked(notifications.show);
 
 const JOB: RepairJob = {
@@ -97,7 +91,6 @@ describe('useBillJobLink', () => {
   beforeEach(() => {
     fetchRepairJob.mockReset();
     fetchPrintJob.mockReset();
-    resolveOrCreateCustomer.mockReset();
     show.mockReset();
     store = makeStore();
     container = document.createElement('div');
@@ -123,11 +116,6 @@ describe('useBillJobLink', () => {
 
   it('puts the repair on the bill, tells the cashier and takes the link out of the address', async () => {
     fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue({
-      key: 'cust_1',
-      name: 'Nimal Perera',
-      primaryPhone: '0771234567',
-    } as never);
 
     await render('/billing?billRepair=rep_1');
 
@@ -144,12 +132,10 @@ describe('useBillJobLink', () => {
       expect.objectContaining({ title: 'Repair added to the bill', color: 'teal' })
     );
     expect(search()).toBe('');
-    expect(store.getState().cart.customerId).toBe('cust_1');
   });
 
   it('adds one line even when the screen draws twice', async () => {
     fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue(null);
 
     await render('/billing?billRepair=rep_1', true);
 
@@ -190,36 +176,18 @@ describe('useBillJobLink', () => {
     expect(search()).toBe('');
   });
 
-  it('keeps the customer already on the bill', async () => {
+  it('leaves the customer on the bill to the bill-to card', async () => {
     store.dispatch(setCustomer({ id: 'cust_9', name: 'Kamal' }));
     fetchRepairJob.mockResolvedValue(JOB);
 
     await render('/billing?billRepair=rep_1');
 
     expect(lines()).toHaveLength(1);
-    expect(resolveOrCreateCustomer).not.toHaveBeenCalled();
     expect(store.getState().cart.customerId).toBe('cust_9');
-  });
-
-  it('attaches the name and phone alone when no saved customer is found or the lookup fails', async () => {
-    fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue(null);
-    await render('/billing?billRepair=rep_1');
-    expect(store.getState().cart.customerId).toBeNull();
-    expect(store.getState().cart.customerName).toBe('Nimal Perera');
-    expect(store.getState().cart.customerPhone).toBe('0771234567');
-
-    act(() => root.unmount());
-    store = makeStore();
-    root = createRoot(container);
-    resolveOrCreateCustomer.mockRejectedValue(new Error('offline'));
-    await render('/billing?billRepair=rep_1');
-    expect(store.getState().cart.customerName).toBe('Nimal Perera');
   });
 
   it('puts a print job on the bill at its own price and takes the link out', async () => {
     fetchPrintJob.mockResolvedValue(PRINT_JOB);
-    resolveOrCreateCustomer.mockResolvedValue(null);
 
     await render('/billing?billPrint=prn_1', true);
 

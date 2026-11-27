@@ -113,6 +113,7 @@ describe('RepairDrawer in view mode', () => {
             job={job}
             onSubmit={vi.fn()}
             loading={false}
+            savedTickets={[]}
             onJobSlip={canSlip ? onJobSlip : null}
             onPrintInvoice={onPrintInvoice}
             onBill={onBill}

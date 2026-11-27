@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
 import { IconArrowRight, IconEdit, IconPlus, IconPrinter } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DrawerFooter, RichDrawer } from '@/shared/components/drawer';
@@ -19,6 +19,8 @@ export interface PrintJobDrawerProps {
   /** Saves the form: a new order when `job` is `null`, otherwise a change to `job`. */
   onSubmit: (values: PrintJobInput) => Promise<void>;
   loading: boolean;
+  /** Tickets saved since the new-job form was opened. */
+  savedTickets: readonly string[];
   /** `null` when this person may not print job slips. */
   onJobSlip: ((job: PrintJob) => void) | null;
   /** Opens the preview of the invoice that billed the job. */
@@ -38,6 +40,7 @@ export const PrintJobDrawer = ({
   job,
   onSubmit,
   loading,
+  savedTickets,
   onJobSlip,
   onPrintInvoice,
   onBill,
@@ -101,15 +104,40 @@ export const PrintJobDrawer = ({
               />
             )
           ) : (
-            <DrawerFooter>
+            <DrawerFooter
+              start={
+                shown.mode === 'create' && savedTickets.length > 0 ? (
+                  <Text size="xs" c="dimmed" role="status">
+                    {`${t('Saved this visit')}: ${savedTickets.join(', ')}`}
+                  </Text>
+                ) : undefined
+              }
+            >
               <Button
                 variant="default"
                 size="sm"
                 disabled={loading}
                 onClick={() => leave(backToJob)}
               >
-                {t('Cancel')}
+                {shown.mode === 'create' && savedTickets.length > 0 && !editor.dirty
+                  ? t('Done')
+                  : t('Cancel')}
               </Button>
+              {shown.mode === 'create' && (
+                <Button
+                  variant="light"
+                  color="blue"
+                  size="sm"
+                  loading={loading}
+                  onClick={() =>
+                    editor.form.onSubmit(editor.addAnother, (errors) =>
+                      editor.focusFirstError(Object.keys(errors))
+                    )()
+                  }
+                >
+                  {t('Save & add another')}
+                </Button>
+              )}
               <Button
                 type="submit"
                 form={PRINT_JOB_FORM_ID}

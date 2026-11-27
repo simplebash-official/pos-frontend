@@ -47,7 +47,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { PrintJobDrawer } from './PrintJobDrawer';
 import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
 import type { Invoice } from '@/features/billing/types';
-import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { JobReceiptModal, useJobSlips } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import {
@@ -90,9 +90,9 @@ export const PrintJobList = () => {
   const navigate = useNavigate();
 
   const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
-  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
+  const slips = useJobSlips(panel.open && panel.mode === 'create', canPrintReceipt);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
@@ -159,12 +159,10 @@ export const PrintJobList = () => {
       const newJob = await createMutation.mutateAsync(values);
       notify.success({
         title: 'Print Order Created',
-        message: newJob.ticketNumber
-          ? `Saved order ${newJob.ticketNumber} successfully`
-          : 'Order saved — it will get its number once back online',
+        message: `Saved order ${newJob.ticketNumber} successfully`,
       });
-      // The customer gets a receipt for what they handed in.
-      if (canPrintReceipt) setReceiptJob(receiptTarget('print', newJob));
+      // The customer gets a slip for what they handed in, once the form is left.
+      slips.saved(newJob);
     }
   };
 
@@ -281,7 +279,7 @@ export const PrintJobList = () => {
             align: 'right' as const,
             render: (job: PrintJob) => (
               <RowActions>
-                <JobSlipAction onClick={() => setReceiptJob(receiptTarget('print', job))} />
+                <JobSlipAction onClick={() => slips.print(job)} />
               </RowActions>
             ),
           },
@@ -419,13 +417,14 @@ export const PrintJobList = () => {
         job={openJob}
         onSubmit={handleFormSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
-        onJobSlip={canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null}
+        savedTickets={slips.savedTickets}
+        onJobSlip={canPrintReceipt ? (job) => slips.print(job) : null}
         onPrintInvoice={setInvoiceToPrint}
         onBill={(job) => navigate(`${ROUTES.BILLING}?billPrint=${job.id}`)}
-        closeOnEscape={receiptJob === null && invoiceToPrint === null}
+        closeOnEscape={slips.target === null && invoiceToPrint === null}
       />
 
-      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
+      <JobReceiptModal target={slips.target} onClose={slips.close} />
       <TicketInvoicePreview invoice={invoiceToPrint} onClose={() => setInvoiceToPrint(null)} />
     </Stack>
   );

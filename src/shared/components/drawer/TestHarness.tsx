@@ -7,11 +7,19 @@ import { MantineProvider } from '@mantine/core';
 import { MemoryRouter } from 'react-router-dom';
 import { LayoutTierProvider } from '@/shared/hooks/useResponsive';
 
-export const TestHarness = ({ role, children }: { role: string; children: ReactNode }) => {
+export const TestHarness = ({
+  role,
+  permissions = [],
+  children,
+}: {
+  role: string;
+  permissions?: string[];
+  children: ReactNode;
+}) => {
   const [store] = useState(() =>
     configureStore({
       reducer: {
-        auth: () => ({ user: { id: 'u1', name: 'T', username: 't', role, permissions: [] } }),
+        auth: () => ({ user: { id: 'u1', name: 'T', username: 't', role, permissions } }),
       },
     })
   );

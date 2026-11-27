@@ -54,26 +54,53 @@ vi.mock('../PrintJobEditForm', () => ({
   }: {
     editor: {
       handleSubmit: (values: unknown, billAfterSave: null) => Promise<void>;
-      form: { values: unknown };
+      form: {
+        values: Record<string, unknown>;
+        setValues: (values: Record<string, unknown>) => void;
+      };
     };
   }) => (
-    <button
-      type="button"
-      data-testid="save-form"
-      onClick={() => void editor.handleSubmit(editor.form.values, null)}
-    >
-      {editor.form.values !== undefined &&
-      (editor.form.values as { customerKey: string }).customerKey !== ''
-        ? 'save edit'
-        : 'save new'}
-    </button>
+    <>
+      <button
+        type="button"
+        data-testid="save-form"
+        onClick={() => void editor.handleSubmit(editor.form.values, null)}
+      >
+        {editor.form.values !== undefined &&
+        (editor.form.values as { customerKey: string }).customerKey !== ''
+          ? 'save edit'
+          : 'save new'}
+      </button>
+      <button
+        type="button"
+        data-testid="fill-form"
+        onClick={() =>
+          editor.form.setValues({
+            customerKey: 'cus_nimal',
+            customerName: 'Nimal Perera',
+            customerPhone: '0771234567',
+            jobType: 'mug',
+            quantity: '2',
+          })
+        }
+      >
+        fill
+      </button>
+      <output data-testid="typed">{JSON.stringify(editor.form.values)}</output>
+    </>
   ),
 }));
 // The receipt preview has its own tests; this one says which job it was opened for.
 vi.mock('@/features/job-receipts/components/JobReceiptModal', () => ({
-  JobReceiptModal: ({ job }: { job: { ticketNumber: string; kind: string; id: string } | null }) =>
-    job === null ? null : (
-      <output data-testid="receipt">{`${job.kind}:${job.id}:${job.ticketNumber}`}</output>
+  JobReceiptModal: ({
+    target,
+  }: {
+    target: { customerKey: string; jobs: { id: string; ticketNumber: string }[] } | null;
+  }) =>
+    target === null ? null : (
+      <output data-testid="receipt">
+        {target.jobs.map((job) => `${job.id}:${job.ticketNumber}`).join(',')}
+      </output>
     ),
 }));
 
@@ -168,7 +195,7 @@ describe('the receipt on the print job list', () => {
     await vi.waitFor(() => expect(button('save new')).toBeDefined());
     await act(async () => button('save new')?.click());
 
-    await vi.waitFor(() => expect(receipt()).toBe('print:prn_9:PRN-000009'));
+    await vi.waitFor(() => expect(receipt()).toBe('prn_9:PRN-000009'));
   });
 
   it('does not open a receipt after an edit', async () => {
@@ -204,7 +231,7 @@ describe('the receipt on the print job list', () => {
     await vi.waitFor(() => expect(button('Job slip')).toBeDefined());
     await act(async () => button('Job slip')?.click());
 
-    expect(receipt()).toContain('print:');
+    expect(receipt()).toContain('prn_1:');
   });
 
   it('prints the receipt again from a row without opening the edit window', async () => {
@@ -213,7 +240,7 @@ describe('the receipt on the print job list', () => {
 
     await act(async () => receiptButtons()[0].click());
 
-    expect(receipt()).toBe('print:prn_1:PRN-000001');
+    expect(receipt()).toBe('prn_1:PRN-000001');
     expect(button('save edit')).toBeUndefined();
   });
 
@@ -228,5 +255,42 @@ describe('the receipt on the print job list', () => {
     await act(async () => button('save new')?.click());
     await vi.waitFor(() => expect(createJob).toHaveBeenCalledTimes(1));
     expect(receipt()).toBeUndefined();
+  });
+
+  it('saves job after job for one customer, then prints them on one slip', async () => {
+    createJob
+      .mockResolvedValueOnce(NEW_JOB)
+      .mockResolvedValueOnce({ ...NEW_JOB, id: 'prn_10', ticketNumber: 'PRN-000010' });
+    await render();
+    await act(async () => button('New Print Order')?.click());
+    await vi.waitFor(() => expect(button('Save & add another')).toBeDefined());
+    const fill = () =>
+      act(async () => (document.querySelector('[data-testid="fill-form"]') as HTMLElement).click());
+    const typed = () =>
+      JSON.parse(document.querySelector('[data-testid="typed"]')?.textContent as string) as Record<
+        string,
+        unknown
+      >;
+
+    await fill();
+    await act(async () => button('Save & add another')?.click());
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain('Saved this visit: PRN-000009')
+    );
+    // The form stays open, empty but for the customer, and no slip interrupts.
+    expect(typed().customerKey).toBe('cus_nimal');
+    expect(typed().quantity).toBe(1);
+    expect(receipt()).toBeUndefined();
+    expect(button('Done')).toBeDefined();
+
+    await fill();
+    await act(async () => button('Save & add another')?.click());
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain('Saved this visit: PRN-000009, PRN-000010')
+    );
+
+    await act(async () => button('Done')?.click());
+    await vi.waitFor(() => expect(receipt()).toBe('prn_9:PRN-000009,prn_10:PRN-000010'));
+    expect(createJob).toHaveBeenCalledTimes(2);
   });
 });

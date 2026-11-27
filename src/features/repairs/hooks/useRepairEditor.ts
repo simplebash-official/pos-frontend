@@ -29,6 +29,14 @@ export interface RepairEditorOptions {
   onSaved: () => void;
 }
 
+/** The empty form for the same customer's next device. */
+const nextForSameCustomer = (saved: RepairFormValues): RepairFormValues => ({
+  ...fromRepairJob(null),
+  customerKey: saved.customerKey,
+  customerName: saved.customerName,
+  customerPhone: saved.customerPhone,
+});
+
 /**
  * Everything the repair form works out: the typed values, the work items, what they come to, the
  * profit and the technician's share, and saving. The side panel calls this once and hands the
@@ -117,14 +125,19 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
       ? job.id
       : null;
 
-  const handleSubmit = async (values: RepairFormValues, billAfterSave: string | null) => {
+  /** Saves what is typed; `false` when something on the form stops it. */
+  const save = async (values: RepairFormValues) => {
     setTried(true);
     if (workProblem !== null) {
       notify.error({ title: t('Cannot save repair'), message: workProblem });
-      return;
+      return false;
     }
-    const payload = toRepairInput(values, workLocked ? undefined : toItemInputs(drafts, rework));
-    await onSubmit(payload);
+    await onSubmit(toRepairInput(values, workLocked ? undefined : toItemInputs(drafts, rework)));
+    return true;
+  };
+
+  const handleSubmit = async (values: RepairFormValues, billAfterSave: string | null) => {
+    if (!(await save(values))) return;
     onSaved();
     if (billAfterSave !== null) navigate(`${ROUTES.BILLING}?billRepair=${billAfterSave}`);
   };
@@ -134,6 +147,23 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
     handleSubmit(values, jobId).catch((error: unknown) =>
       notify.error({ title: t('Could not save the repair'), message: getErrorMessage(error) })
     );
+
+  /** Saves this ticket and leaves the form open, empty, for the same customer's next one. */
+  const addAnother = async (values: RepairFormValues) => {
+    try {
+      if (!(await save(values))) return;
+    } catch (error) {
+      notify.error({ title: t('Could not save the repair'), message: getErrorMessage(error) });
+      return;
+    }
+    const next = nextForSameCustomer(values);
+    form.setValues(next);
+    form.clearErrors();
+    setDrafts([]);
+    setBaseline(snapshot([next, []]));
+    setTried(false);
+    form.getInputNode('deviceModel')?.focus();
+  };
 
   // The customer card sits at the top of the form, already in view; the other fields may not be.
   const focusFirstError = (keys: string[]) => {
@@ -178,6 +208,7 @@ export const useRepairEditor = ({ job, active, onSubmit, onSaved }: RepairEditor
     billJobId,
     statusOptions,
     handleSubmit,
+    addAnother,
     billAfterSave,
   };
 };

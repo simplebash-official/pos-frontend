@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { notify } from '@/shared/notify';
 import { t } from '@/shared/i18n/t';
@@ -8,21 +8,15 @@ import { printBillBlockerNotice } from '@/features/print-jobs';
 import { fetchPrintJob } from '@/features/print-jobs/api/printJobsApi';
 import { billBlockerNotice } from '@/features/repairs';
 import { fetchRepairJob } from '@/features/repairs/api/repairsApi';
-import type { CartItem } from '@/store/slices/cartSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { addItem, type CartItem } from '@/store/slices/cartSlice';
 import { printCartLine, printJobTitle } from '../lib/printCartLine';
 import { repairCartLine } from '../lib/repairCartLine';
-import { useServiceJobCart } from './useServiceJobCart';
 
 /** A linked job once it is loaded: either why it cannot be billed, or the line it adds. */
 type LinkedJob =
   | { blocked: { title: string; message: string } }
-  | {
-      blocked: null;
-      line: CartItem;
-      customerName: string;
-      customerPhone: string;
-      added: { title: string; message: string };
-    };
+  | { blocked: null; line: CartItem; added: { title: string; message: string } };
 
 const loadRepair = async (id: string): Promise<LinkedJob> => {
   const job = await fetchRepairJob(id);
@@ -31,8 +25,6 @@ const loadRepair = async (id: string): Promise<LinkedJob> => {
   return {
     blocked: null,
     line: repairCartLine(job),
-    customerName: job.customerName,
-    customerPhone: job.customerPhone,
     added: {
       title: t('Repair added to the bill'),
       message: `${job.ticketNumber}: ${job.deviceModel}`,
@@ -47,8 +39,6 @@ const loadPrintJob = async (id: string): Promise<LinkedJob> => {
   return {
     blocked: null,
     line: printCartLine(job),
-    customerName: job.customerName,
-    customerPhone: job.customerPhone,
     added: {
       title: t('Print job added to the bill'),
       message: `${job.ticketNumber}: ${printJobTitle(job)}`,
@@ -65,13 +55,7 @@ export const useBillJobLink = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const billRepairId = searchParams.get('billRepair');
   const billPrintId = searchParams.get('billPrint');
-  const addServiceJob = useServiceJobCart();
-  // Attaching the customer changes `addServiceJob` while the address is still being cleared; the
-  // fetch below must not start over for that, so it reads the latest one from here.
-  const addServiceJobRef = useRef(addServiceJob);
-  useEffect(() => {
-    addServiceJobRef.current = addServiceJob;
-  });
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     let link: { param: string; load: () => Promise<LinkedJob>; failedTitle: string };
@@ -106,7 +90,7 @@ export const useBillJobLink = () => {
         if (job.blocked !== null) {
           notify.error(job.blocked);
         } else {
-          addServiceJobRef.current(job.line, job.customerName, job.customerPhone);
+          dispatch(addItem(job.line));
           notify.success(job.added);
         }
         clearParam();
@@ -119,5 +103,5 @@ export const useBillJobLink = () => {
     return () => {
       isCancelled = true;
     };
-  }, [billRepairId, billPrintId, setSearchParams]);
+  }, [billRepairId, billPrintId, setSearchParams, dispatch]);
 };

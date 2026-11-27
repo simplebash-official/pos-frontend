@@ -30,6 +30,7 @@ const REPAIRS = [
     deviceModel: 'Phone X',
     issueDescription: 'Cracked screen',
     customerPhone: '0771234567',
+    status: 'received',
     createdAt: '2026-10-13T10:00:00Z',
     kind: { kind: 'standard' },
     items: [],
@@ -39,7 +40,23 @@ const REPAIRS = [
 ];
 
 vi.mock('@/features/billing/api/invoicesApi', () => ({ fetchInvoices: async () => INVOICES }));
-vi.mock('@/features/repairs/api/repairsApi', () => ({ fetchRepairs: async () => REPAIRS }));
+vi.mock('@/features/repairs/api/repairsApi', () => ({
+  fetchCustomerRepairs: async () => REPAIRS,
+}));
+vi.mock('@/features/print-jobs/api/printJobsApi', () => ({
+  fetchCustomerPrintJobs: async () => [],
+}));
+// The slip window has its own tests; this one says what it was asked to print.
+vi.mock('@/features/job-receipts/components/JobReceiptModal', () => ({
+  JobReceiptModal: ({
+    target,
+  }: {
+    target: { customerKey: string; jobs: { id: string }[] } | null;
+  }) =>
+    target === null ? null : (
+      <output data-testid="slip">{`${target.customerKey}:${target.jobs.map((j) => j.id)}`}</output>
+    ),
+}));
 
 const makeCustomer = (overrides: Partial<Customer> = {}): Customer => ({
   id: 'c1',
@@ -80,7 +97,7 @@ describe('CustomerDetailDrawer', () => {
   const open = async (customer: Customer | null) => {
     await act(async () => {
       root.render(
-        <TestHarness role="admin">
+        <TestHarness role="admin" permissions={['repairs:write']}>
           <CustomerDetailDrawer
             customer={customer}
             opened={customer !== null}
@@ -145,14 +162,22 @@ describe('CustomerDetailDrawer', () => {
     expect(text()).not.toContain('cus_1'); // the key is not shown
   });
 
-  it('lists the customer’s invoices, then repairs after switching tab', async () => {
+  it('lists the customer’s invoices, then their jobs after switching tab', async () => {
     await open(makeCustomer());
     expect(text()).toContain('#INV-1');
     expect(text()).toContain('Rs. 500.00');
 
-    await act(async () => tab('Repairs')!.click());
+    await act(async () => tab('Jobs')!.click());
     await until(() => expect(text()).toContain('#REP-1 · Phone X'));
-    expect(text()).toContain('Pending diagnosis');
+    expect(text()).toContain('Not priced yet');
+  });
+
+  it('prints one slip for the customer’s open jobs', async () => {
+    await open(makeCustomer());
+    await act(async () => tab('Jobs')!.click());
+    await until(() => expect(button('Print job slip')).toBeDefined());
+    await act(async () => button('Print job slip')!.click());
+    expect(document.body.querySelector('[data-testid="slip"]')?.textContent).toBe('cus_1:r1');
   });
 
   it('has a Notes tab only when the customer has notes', async () => {

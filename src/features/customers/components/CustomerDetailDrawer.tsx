@@ -44,7 +44,10 @@ import {
 } from '@/shared/components/drawer';
 import { PhoneDisplay } from '@/shared/components/PhoneDisplay';
 import { fetchInvoices } from '@/features/billing/api/invoicesApi';
-import { fetchRepairs } from '@/features/repairs/api/repairsApi';
+import { useCustomerJobs } from '@/features/customer-jobs/hooks/useCustomerJobs';
+import { JobReceiptModal } from '@/features/job-receipts/components/JobReceiptModal';
+import type { JobSlipTarget } from '@/features/job-receipts/types';
+import { CustomerJobsTab } from './CustomerJobsTab';
 import { queryKeys } from '@/api/queryKeys';
 import {
   useWarranties,
@@ -55,7 +58,7 @@ import {
 import { PERMISSIONS } from '@/constants/permissions';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 
-type HistoryTab = 'invoices' | 'repairs' | 'warranties' | 'notes';
+type HistoryTab = 'invoices' | 'jobs' | 'warranties' | 'notes';
 
 export interface CustomerDetailDrawerProps {
   customer: Customer | null;
@@ -81,19 +84,14 @@ export const CustomerDetailDrawer = ({
     enabled: opened && !!customer,
   });
 
-  const customerInvoices = useMemo(() => {
-    if (!customer) return [];
-    // `customerKey` is an exact server-side filter, so this is a defensive
-    // pass only (e.g. a legacy invoice snapshot recorded under a stale key).
-    return scopedInvoices
-      .filter(
-        (inv) =>
-          inv.customerId === customer.id ||
-          (customer.primaryPhone && inv.customerPhone === customer.primaryPhone) ||
-          (inv.customerName && inv.customerName.toLowerCase() === customer.name.toLowerCase())
-      )
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, scopedInvoices]);
+  // The server filters by customer key; the newest comes first.
+  const customerInvoices = useMemo(
+    () =>
+      [...scopedInvoices].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+    [scopedInvoices]
+  );
 
   const canViewWarranties = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
   const { data: warrantyPage } = useWarranties(
@@ -102,25 +100,16 @@ export const CustomerDetailDrawer = ({
   const customerWarranties = warrantyPage?.items ?? [];
   const [openWarrantyKey, setOpenWarrantyKey] = useState<string | null>(null);
 
-  // Repairs has no server-side customer-key filter, so `search` (name/phone,
-  // case-insensitive substring match) is the closest scoping available.
-  const repairsSearchTerm = customer?.primaryPhone || customer?.name;
-  const { data: scopedRepairs = [] } = useQuery({
-    queryKey: queryKeys.repairs.list({ search: repairsSearchTerm }),
-    queryFn: () => fetchRepairs({ search: repairsSearchTerm }),
-    enabled: opened && !!customer && !!repairsSearchTerm,
-  });
-
-  const customerRepairs = useMemo(() => {
-    if (!customer) return [];
-    return scopedRepairs
-      .filter(
-        (r) =>
-          (customer.primaryPhone && r.customerPhone === customer.primaryPhone) ||
-          (r.customerName && r.customerName.toLowerCase() === customer.name.toLowerCase())
-      )
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [customer, scopedRepairs]);
+  const {
+    jobs,
+    isError: jobsFailed,
+    retry: retryJobs,
+  } = useCustomerJobs(opened && customer !== null ? customer.key : null);
+  const mayPrintSlip = {
+    repair: useHasPermission(PERMISSIONS.REPAIRS_WRITE),
+    print: useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE),
+  };
+  const [slip, setSlip] = useState<JobSlipTarget | null>(null);
 
   return (
     <>
@@ -129,6 +118,8 @@ export const CustomerDetailDrawer = ({
         opened={opened}
         onClose={onClose}
         width="wide"
+        // Escape closes only the window on top.
+        closeOnEscape={slip === null && openWarrantyKey === null}
         title={{
           icon: <IconUser size={20} />,
           text: t('Customer Specifications'),
@@ -164,7 +155,7 @@ export const CustomerDetailDrawer = ({
           // A customer with no notes has no Notes tab, so fall back if it was the one selected.
           const tab: HistoryTab = historyTab === 'notes' && !c.notes ? 'invoices' : historyTab;
           const lastInvoice = customerInvoices[0];
-          const lastRepair = customerRepairs[0];
+          const openJobs = jobs?.filter((job) => job.isOpen).length;
 
           return (
             <DrawerGrid>
@@ -198,10 +189,10 @@ export const CustomerDetailDrawer = ({
                     color="gray"
                   />
                 </KpiTile>
-                <KpiTile icon={<IconTools size={16} />} color="gray" label={t('Repairs')}>
+                <KpiTile icon={<IconTools size={16} />} color="gray" label={t('Jobs')}>
                   <Figure
-                    value={String(customerRepairs.length)}
-                    hint={lastRepair ? `${t('Last')} ${formatDate(lastRepair.createdAt)}` : '—'}
+                    value={jobs === undefined ? '—' : String(jobs.length)}
+                    hint={openJobs === undefined ? '—' : `${openJobs} ${t('open')}`}
                     color="gray"
                   />
                 </KpiTile>
@@ -307,10 +298,10 @@ export const CustomerDetailDrawer = ({
                       count: customerInvoices.length,
                     },
                     {
-                      value: 'repairs',
-                      label: t('Repairs'),
+                      value: 'jobs',
+                      label: t('Jobs'),
                       icon: <IconTools size={16} />,
-                      count: customerRepairs.length,
+                      count: jobs?.length,
                     },
                     ...(canViewWarranties
                       ? [
@@ -381,57 +372,21 @@ export const CustomerDetailDrawer = ({
                         </ScrollArea.Autosize>
                       );
                     }
-                    if (value === 'repairs') {
-                      return customerRepairs.length === 0 ? (
-                        <Center py="md">
-                          <Stack gap={6} align="center">
-                            <IconTools size={22} style={{ opacity: 0.4 }} />
-                            <Text size="sm" c="dimmed" ta="center">
-                              {t('No repair tickets found for this customer.')}
-                            </Text>
-                          </Stack>
-                        </Center>
-                      ) : (
-                        <ScrollArea.Autosize
-                          mah="45dvh"
-                          type="hover"
-                          scrollbarSize={6}
-                          classNames={{ viewport: 'scrollarea-fluid-content' }}
-                        >
-                          {customerRepairs.map((rep, index) => (
-                            <ListRow
-                              key={rep.id}
-                              index={index}
-                              first={index === 0}
-                              icon={
-                                <IconTools
-                                  size={20}
-                                  style={{ color: 'var(--mantine-color-blue-6)' }}
-                                />
-                              }
-                              title={`#${rep.ticketNumber} · ${rep.deviceModel}`}
-                              meta={
-                                <>
-                                  <Text size="xs" c="dimmed" lineClamp={1}>
-                                    {rep.issueDescription}
-                                  </Text>
-                                  {formatDateTime(rep.createdAt)}
-                                </>
-                              }
-                              trailing={
-                                rep.items.length > 0 ? (
-                                  <Text size="sm" fw={700}>
-                                    {formatMoney(rep.priceCents)}
-                                  </Text>
-                                ) : (
-                                  <Text size="xs" fw={700} c="yellow">
-                                    {t('Pending diagnosis')}
-                                  </Text>
-                                )
-                              }
-                            />
-                          ))}
-                        </ScrollArea.Autosize>
+                    if (value === 'jobs') {
+                      return (
+                        <CustomerJobsTab
+                          jobs={jobs}
+                          isError={jobsFailed}
+                          onRetry={retryJobs}
+                          mayPrint={mayPrintSlip}
+                          onPrintSlip={(chosen) =>
+                            setSlip({
+                              customerKey: c.key,
+                              customerName: c.name,
+                              jobs: chosen.map(({ id, ticketNumber }) => ({ id, ticketNumber })),
+                            })
+                          }
+                        />
                       );
                     }
                     if (value === 'warranties') {
@@ -493,6 +448,7 @@ export const CustomerDetailDrawer = ({
           );
         }}
       </RichDrawer>
+      <JobReceiptModal target={slip} onClose={() => setSlip(null)} />
       <WarrantyDetailDrawer
         warrantyKey={openWarrantyKey}
         onClose={() => setOpenWarrantyKey(null)}
