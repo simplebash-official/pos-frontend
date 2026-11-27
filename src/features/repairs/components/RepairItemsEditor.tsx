@@ -4,6 +4,7 @@ import { CostToShopField } from '@/shared/components/ticket-items/CostToShopFiel
 import { ItemDiscountButton } from '@/shared/components/ticket-items/ItemDiscountButton';
 import { ItemIcon } from '@/shared/components/ticket-items/ItemIcon';
 import { ItemWarrantyButton } from '@/shared/components/ticket-items/ItemWarrantyButton';
+import { lineMoneyProps } from '@/shared/components/ticket-items/lineMoney';
 import { StockPartPicker, type QuickFee } from '@/shared/components/ticket-items/StockPartPicker';
 import { TicketItemCard } from '@/shared/components/ticket-items/TicketItemCard';
 import { TicketTotals } from '@/shared/components/ticket-items/TicketTotals';
@@ -254,16 +255,6 @@ export const RepairItemsEditor = ({
     onChange(drafts.filter((d) => d.uid !== uid));
   };
 
-  const inputHeight = isMobile ? 44 : 36;
-  const moneyInputStyles = {
-    input: {
-      textAlign: 'right',
-      fontVariantNumeric: 'tabular-nums',
-      height: inputHeight,
-      fontSize: isMobile ? 16 : undefined,
-    },
-  } as const;
-
   /** One piece of work as a card: what and how much on top, then the two buttons. */
   const renderCard = (draft: ItemDraft, index: number) => {
     const unitPriceCents =
@@ -294,37 +285,41 @@ export const RepairItemsEditor = ({
         : totals.itemProfitsCents[index];
 
     const subline = () => {
-      if (draft.kind === 'fee') {
-        return (
-          <Stack gap={4}>
-            <Text size="xs" c="dimmed">
-              {t('Service fee')}
-            </Text>
-            {/* A locked job with no recorded cost shows no empty box. */}
-            {(!readOnly || draft.costRupees !== '') && (
-              <CostToShopField
-                label={t('Cost to shop')}
-                lineName={draft.description}
-                placeholder={t('Optional')}
-                value={draft.costRupees}
-                invalid={problem !== null && problem.field === 'cost'}
-                onChange={(value) => updateFee(draft.uid, 'costRupees', value)}
-                disabled={readOnly}
-                profitCents={rowProfitCents(draft.costRupees, draft.feeRupees)}
-              />
-            )}
-          </Stack>
-        );
-      }
-      if (draft.part.source === 'stock') {
+      if (draft.kind === 'fee' || draft.part.source === 'outside') {
         return (
           <Text size="xs" c="dimmed">
-            {draft.part.serialNumber
-              ? `${t('Serial:')} ${draft.part.serialNumber}`
-              : stockLine(draft.part.productKey, draft.part.stockQuantity)}
+            {draft.kind === 'fee' ? t('Service fee') : t('Outside part')}
           </Text>
         );
       }
+      return (
+        <Text size="xs" c="dimmed">
+          {draft.part.serialNumber
+            ? `${t('Serial:')} ${draft.part.serialNumber}`
+            : stockLine(draft.part.productKey, draft.part.stockQuantity)}
+        </Text>
+      );
+    };
+
+    const costBox = () => {
+      if (draft.kind === 'fee') {
+        // A locked job with no recorded cost shows no empty box.
+        return (
+          (!readOnly || draft.costRupees !== '') && (
+            <CostToShopField
+              label={t('Cost to shop')}
+              lineName={draft.description}
+              placeholder={t('Optional')}
+              value={draft.costRupees}
+              invalid={problem !== null && problem.field === 'cost'}
+              onChange={(value) => updateFee(draft.uid, 'costRupees', value)}
+              disabled={readOnly}
+              profitCents={rowProfitCents(draft.costRupees, draft.feeRupees)}
+            />
+          )
+        );
+      }
+      if (draft.part.source === 'stock') return null;
       return (
         <CostToShopField
           label={t('Cost to shop, each')}
@@ -364,17 +359,14 @@ export const RepairItemsEditor = ({
         </Text>
       ) : (
         <NumberInput
-          size="sm"
-          w={isMobile ? '100%' : 150}
+          {...lineMoneyProps(isMobile)}
+          label={draft.kind === 'fee' ? t('Fee') : t('Price for one')}
           aria-label={
             draft.kind === 'fee'
               ? `${t('Fee')} ${index + 1}`
-              : `${t('Price of')} ${draft.description}`
+              : `${t('Price for one')}: ${draft.description}`
           }
-          prefix="Rs. "
-          min={0}
-          thousandSeparator=","
-          styles={moneyInputStyles}
+          placeholder="0"
           value={rework ? 0 : typedPrice}
           error={
             problem !== null &&
@@ -438,6 +430,9 @@ export const RepairItemsEditor = ({
               ? `${formatMoney(unitPriceCents)} ${t('each')}`
               : `${t('Total:')} ${formatMoney(linePriceCents)}`
             : null
+        }
+        typedBoxes={
+          draft.kind === 'part' && draft.part.source === 'stock' ? null : { cost: costBox() }
         }
         onRemove={readOnly ? null : () => removeDraft(draft.uid)}
         problem={problem === null ? null : problem.message}

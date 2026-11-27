@@ -7,6 +7,7 @@ import { CostToShopField } from '@/shared/components/ticket-items/CostToShopFiel
 import { ItemDiscountButton } from '@/shared/components/ticket-items/ItemDiscountButton';
 import { ItemIcon } from '@/shared/components/ticket-items/ItemIcon';
 import { ItemWarrantyButton } from '@/shared/components/ticket-items/ItemWarrantyButton';
+import { lineMoneyProps } from '@/shared/components/ticket-items/lineMoney';
 import { StockPartPicker, type QuickFee } from '@/shared/components/ticket-items/StockPartPicker';
 import { TicketItemCard } from '@/shared/components/ticket-items/TicketItemCard';
 import { TicketTotals } from '@/shared/components/ticket-items/TicketTotals';
@@ -145,15 +146,6 @@ export const PrintItemsEditor = ({
             ),
         }));
 
-  const moneyStyles = {
-    input: {
-      textAlign: 'right',
-      fontVariantNumeric: 'tabular-nums',
-      height: isMobile ? 44 : 36,
-      fontSize: isMobile ? 16 : undefined,
-    },
-  } as const;
-
   const renderCard = (draft: PrintDraft, index: number) => {
     const problem = showProblems ? rowProblem(draft, rework) : null;
     const quantity = lineQuantity(draft.quantity);
@@ -165,37 +157,41 @@ export const PrintItemsEditor = ({
     const max =
       units === null ? MAX_LINE_QUANTITY : Math.max(units, quantity === null ? 0 : quantity);
 
+    const costTyped = draft.kind !== 'stock' && draft.unitCostRupees !== '';
+    const typedBoxes =
+      draft.kind === 'stock'
+        ? null
+        : {
+            // A locked job with no recorded cost shows no empty box.
+            cost: (draft.kind === 'outside' || !readOnly || costTyped) && (
+              <CostToShopField
+                label={t('Cost to shop, each')}
+                lineName={draft.description}
+                placeholder={draft.kind === 'service' ? t('Optional') : '0'}
+                value={draft.unitCostRupees}
+                invalid={problem !== null && problem.field === 'cost'}
+                onChange={(value) =>
+                  update(draft.uid, (current) => ({ ...current, unitCostRupees: value }))
+                }
+                disabled={readOnly}
+                profitCents={
+                  costTyped &&
+                  (rework || draft.unitPriceRupees !== '') &&
+                  line !== null &&
+                  line.profitCents !== undefined
+                    ? line.profitCents
+                    : null
+                }
+              />
+            ),
+          };
+
     const subline = () => {
       if (draft.kind !== 'stock') {
-        const costTyped = draft.unitCostRupees !== '';
-        const priceTyped = rework || draft.unitPriceRupees !== '';
-        const costField = (
-          <CostToShopField
-            label={t('Cost to shop, each')}
-            lineName={draft.description}
-            placeholder={draft.kind === 'service' ? t('Optional') : '0'}
-            value={draft.unitCostRupees}
-            invalid={problem !== null && problem.field === 'cost'}
-            onChange={(value) =>
-              update(draft.uid, (current) => ({ ...current, unitCostRupees: value }))
-            }
-            disabled={readOnly}
-            profitCents={
-              costTyped && priceTyped && line !== null && line.profitCents !== undefined
-                ? line.profitCents
-                : null
-            }
-          />
-        );
-        if (draft.kind === 'outside') return costField;
         return (
-          <Stack gap={4}>
-            <Text size="xs" c="dimmed">
-              {t('Service fee')}
-            </Text>
-            {/* A locked job with no recorded cost shows no empty box. */}
-            {(!readOnly || costTyped) && costField}
-          </Stack>
+          <Text size="xs" c="dimmed">
+            {draft.kind === 'service' ? t('Service fee') : t('Outside part')}
+          </Text>
         );
       }
       if (draft.serialNumber !== undefined) {
@@ -251,14 +247,10 @@ export const PrintItemsEditor = ({
         </Text>
       ) : (
         <NumberInput
-          size="sm"
-          w={isMobile ? '100%' : 150}
+          {...lineMoneyProps(isMobile)}
+          label={t('Price for one')}
           aria-label={`${t('Price for one')}: ${draft.description}`}
-          placeholder={t('Price for one')}
-          prefix="Rs. "
-          min={0}
-          thousandSeparator=","
-          styles={moneyStyles}
+          placeholder="0"
           value={rework ? 0 : draft.unitPriceRupees}
           error={problem !== null && problem.field === 'price'}
           onChange={(value) =>
@@ -268,14 +260,10 @@ export const PrintItemsEditor = ({
         />
       );
 
-    let priceCaption: string | null;
-    if (draft.kind === 'stock') {
-      priceCaption =
-        quantity !== null && quantity > 1 ? `${formatMoney(unitCents)} ${t('each')}` : null;
-    } else if (quantity !== null && quantity > 1 && lineGross !== null) {
-      priceCaption = `${t('Total:')} ${lineGross}`;
-    } else {
-      priceCaption = t('each');
+    let priceCaption: string | null = null;
+    if (quantity !== null && quantity > 1) {
+      if (draft.kind === 'stock') priceCaption = `${formatMoney(unitCents)} ${t('each')}`;
+      else if (lineGross !== null) priceCaption = `${t('Total:')} ${lineGross}`;
     }
 
     // The order's quantity, offered while the row differs from it and stock allows it.
@@ -325,6 +313,7 @@ export const PrintItemsEditor = ({
         }
         price={price}
         priceCaption={priceCaption}
+        typedBoxes={typedBoxes}
         onRemove={
           readOnly ? null : () => onChange(drafts.filter((other) => other.uid !== draft.uid))
         }

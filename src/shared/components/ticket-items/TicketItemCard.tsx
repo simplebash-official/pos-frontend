@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Group, Paper, Stack, Text } from '@mantine/core';
+import { Box, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { IconAction } from '@/shared/components/drawer';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
@@ -17,6 +17,11 @@ export interface TicketItemCardProps {
   price: ReactNode;
   /** A small line under the price ("Rs. 500.00 each"); `null` for none. */
   priceCaption: string | null;
+  /**
+   * For a line whose price is typed: the price box sits in a row of labelled boxes, after the cost
+   * box (`false` on a locked line with no cost recorded). `null` when the price is only read.
+   */
+  typedBoxes: { cost: ReactNode } | null;
   /** `null` when the job's lines can no longer be changed. */
   onRemove: (() => void) | null;
   /** What stops the line being saved; `null` when nothing. */
@@ -27,8 +32,8 @@ export interface TicketItemCardProps {
 
 /**
  * One line of a job as a card: what and how much on top, then the two buttons. A line with a
- * quantity puts it and the price on a second row, so the title keeps the card's width in a narrow
- * panel. On a phone both move under the title so each gets a full-width row.
+ * quantity or typed boxes puts them on a second row, so the title keeps the card's width in a
+ * narrow panel. On a phone everything moves under the title and gets a full-width row.
  */
 export const TicketItemCard = ({
   icon,
@@ -37,6 +42,7 @@ export const TicketItemCard = ({
   quantity,
   price,
   priceCaption,
+  typedBoxes,
   onRemove,
   problem,
   children,
@@ -68,7 +74,7 @@ export const TicketItemCard = ({
             <ClampedTitle text={title} />
             {subline}
           </Stack>
-          {!isMobile && quantity === null && (
+          {!isMobile && quantity === null && typedBoxes === null && (
             <Stack gap={2} align="flex-end" style={{ flexShrink: 0, minWidth: 100 }}>
               {priceColumn}
             </Stack>
@@ -83,7 +89,24 @@ export const TicketItemCard = ({
           )}
         </Group>
 
-        {!isMobile && quantity !== null && (
+        {!isMobile && typedBoxes !== null && (
+          <Group align="flex-start" wrap="nowrap" gap="sm">
+            {quantity !== null && (
+              <Box style={{ flexShrink: 0 }}>
+                <Text size="xs" fw={500} c="dimmed" mb={4}>
+                  {t('Quantity')}
+                </Text>
+                {quantity('sm')}
+              </Box>
+            )}
+            <SimpleGrid cols={2} spacing="sm" style={{ flex: 1, minWidth: 0 }}>
+              <Box>{typedBoxes.cost}</Box>
+              <Stack gap={4}>{priceColumn}</Stack>
+            </SimpleGrid>
+          </Group>
+        )}
+
+        {!isMobile && quantity !== null && typedBoxes === null && (
           <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
             {quantity('xs')}
             <Stack gap={2} align="flex-end" style={{ minWidth: 100 }}>
@@ -102,14 +125,22 @@ export const TicketItemCard = ({
                 {quantity('sm')}
               </Group>
             )}
-            <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
-              <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
-                {t('Customer pays')}
-              </Text>
-              <Stack gap={2} align="flex-end" style={{ flex: 1, maxWidth: 200 }}>
-                {priceColumn}
-              </Stack>
-            </Group>
+            {typedBoxes === null ? (
+              <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+                <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+                  {t('Customer pays')}
+                </Text>
+                <Stack gap={2} align="flex-end" style={{ flex: 1, maxWidth: 200 }}>
+                  {priceColumn}
+                </Stack>
+              </Group>
+            ) : (
+              // One under the other: a long label in another language never pushes a box down.
+              <>
+                {typedBoxes.cost}
+                <Stack gap={4}>{priceColumn}</Stack>
+              </>
+            )}
           </Stack>
         )}
 

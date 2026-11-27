@@ -1066,7 +1066,7 @@ describe('repair jobs as items', () => {
     const costInput = document.querySelector<HTMLInputElement>('input[placeholder="0"]');
     expect(costInput).not.toBeNull();
     const priceInput = document.querySelector<HTMLInputElement>(
-      'input[aria-label="Price of Rare Power IC"]'
+      'input[aria-label="Price for one: Rare Power IC"]'
     );
     expect(priceInput).not.toBeNull();
   });

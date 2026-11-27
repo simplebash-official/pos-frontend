@@ -1,7 +1,8 @@
-import { Group, NumberInput, Text } from '@mantine/core';
+import { NumberInput, Stack, Text } from '@mantine/core';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
+import { lineMoneyProps } from './lineMoney';
 
 export interface CostToShopFieldProps {
   /** "Cost to shop", or "Cost to shop, each" on a line that has a quantity. */
@@ -35,28 +36,12 @@ export const CostToShopField = ({
   const isMobile = useIsMobile();
 
   return (
-    <Group gap="xs" align="center" wrap="wrap">
-      <Text size="xs" c="dimmed">
-        {label}
-      </Text>
+    <Stack gap={4}>
       <NumberInput
-        size="sm"
-        w={120}
+        {...lineMoneyProps(isMobile)}
+        label={label}
         aria-label={`${label}: ${lineName}`}
         placeholder={placeholder}
-        prefix="Rs. "
-        min={0}
-        thousandSeparator=","
-        // The arrows would cover the text in a box this narrow.
-        hideControls
-        styles={{
-          input: {
-            textAlign: 'right',
-            fontVariantNumeric: 'tabular-nums',
-            height: isMobile ? 44 : 36,
-            fontSize: isMobile ? 16 : undefined,
-          },
-        }}
         value={value}
         error={invalid}
         onChange={onChange}
@@ -67,6 +52,6 @@ export const CostToShopField = ({
           {`${t('Profit')} ${formatMoney(profitCents)}`}
         </Text>
       )}
-    </Group>
+    </Stack>
   );
 };

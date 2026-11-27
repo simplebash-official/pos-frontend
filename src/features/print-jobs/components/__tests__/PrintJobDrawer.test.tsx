@@ -275,6 +275,11 @@ describe('the print job panel form', () => {
       );
     expect(box()?.placeholder).toBe('Optional');
     expect(document.body.textContent).not.toContain('Profit Rs.');
+    // Both boxes are named on screen, in one row: the cost and then the price.
+    const labels = Array.from(document.querySelectorAll('label'), (label) => label.textContent);
+    expect(labels).toEqual(expect.arrayContaining(['Cost to shop, each', 'Price for one']));
+    const price = document.querySelector('input[aria-label="Price for one: Design fee"]')!;
+    expect(box()!.compareDocumentPosition(price)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
