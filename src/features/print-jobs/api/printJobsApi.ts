@@ -1,7 +1,14 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { calc_earnings } from '@/wasm';
-import { PrintJob, PrintJobInput, PrintJobItem, PrintJobKind, PrintJobType } from '../types';
+import {
+  PrintJob,
+  PrintJobFrame,
+  PrintJobInput,
+  PrintJobItem,
+  PrintJobKind,
+  PrintJobType,
+} from '../types';
 
 // Client-side computed employee earnings via `calc_earnings` from WASM.
 export interface BackendPrintJob {
@@ -19,6 +26,7 @@ export interface BackendPrintJob {
   note?: string;
   kind: PrintJobKind;
   items: PrintJobItem[];
+  frames: PrintJobFrame[];
   priceCents: number;
   costCents: number;
   assignedEmployeeId?: string;
@@ -53,6 +61,7 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   note: job.note,
   kind: job.kind,
   items: job.items,
+  frames: job.frames,
   priceCents: job.priceCents,
   costCents: job.costCents,
   assignedEmployeeId: job.assignedEmployeeId,

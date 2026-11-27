@@ -38,6 +38,7 @@ export const PERMISSIONS = {
   REPAIR_SERVICES_MANAGE: 'repair_services:manage',
   PRINT_JOBS_WRITE: 'print_jobs:write',
   PRINT_SERVICES_MANAGE: 'print_services:manage',
+  PRINT_FRAME_SIZES_MANAGE: 'print_frame_sizes:manage',
   QUOTATIONS_MANAGE: 'quotations:manage',
   REPORTS_VIEW: 'reports:view',
   EMPLOYEES_READ: 'employees:read',

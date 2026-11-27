@@ -93,6 +93,7 @@ const makeJob = (overrides: Partial<PrintJob> = {}): PrintJob => ({
   status: 'in_repair',
   kind: { kind: 'standard' },
   items: [MUGS],
+  frames: [],
   priceCents: 2_500_000,
   costCents: 1_300_000,
   createdAt: '2026-11-20T10:00:00Z',
@@ -183,6 +184,21 @@ describe('PrintJobDrawer in view mode', () => {
       { key: 'pit_1', quantity: 50, source: { type: 'service', unitPriceCents: 50_000 } },
       { description: 'Design fee', quantity: 1, source: { type: 'service' } },
     ]);
+  });
+
+  it('shows the frames the customer wants, only on a job that has them', async () => {
+    await open(makeJob());
+    expect(text()).not.toContain('Frames wanted');
+    await open(
+      makeJob({
+        id: 'prn_2',
+        jobType: 'photo-framing',
+        frames: [{ frameSizeKey: 'pfs_1', size: '8x10', widthHundredthsInch: 75, quantity: 2 }],
+      })
+    );
+    expect(text()).toContain('Frames wanted');
+    expect(text()).toContain('8x10 · 0.75 inch');
+    expect(text()).toContain('× 2');
   });
 
   it('takes back an unsaved item with Cancel', async () => {

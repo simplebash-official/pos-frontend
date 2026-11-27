@@ -15,6 +15,12 @@ import { snapshot } from '@/shared/lib/jobPanelState';
 import { PrintJobFormValues, fromPrintJob, toPrintJobInput } from '@/shared/lib/moneyFormUtils';
 import { notify } from '@/shared/notify';
 import {
+  frameDraftsFromSaved,
+  framesProblem,
+  toFrameInputs,
+  type FrameDraft,
+} from '../lib/frameSizes';
+import {
   draftsFromSaved,
   isRework,
   itemsProblem,
@@ -23,7 +29,7 @@ import {
   usePrintTotals,
   type PrintDraft,
 } from '../lib/printItems';
-import type { PrintJob, PrintJobInput } from '../types';
+import type { PrintJob, PrintJobFrameInput, PrintJobInput } from '../types';
 
 /** The most characters a note can have; the server enforces the same. */
 export const NOTE_MAX = 1000;
@@ -58,11 +64,13 @@ const rowsSignature = (drafts: PrintDraft[]): string =>
 export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEditorOptions) => {
   const navigate = useNavigate();
   const [drafts, setDrafts] = useState<PrintDraft[]>([]);
+  /** The frames the customer wants (photo and framing orders). */
+  const [frames, setFrames] = useState<FrameDraft[]>([]);
   const [tried, setTried] = useState(false);
   const [nestedOpen, setNestedOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  /** The values and rows as the form opened with them. */
-  const [loaded, setLoaded] = useState({ values: '', rows: '', note: '' });
+  /** The values, rows and wanted frames as the form opened with them. */
+  const [loaded, setLoaded] = useState({ values: '', rows: '', frames: '', note: '' });
 
   const form = useForm<PrintJobFormValues>({
     initialValues: fromPrintJob(null),
@@ -85,15 +93,23 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
     if (active) {
       const values = fromPrintJob(job);
       const rows = job === null ? [] : draftsFromSaved(job.items);
+      const wanted = job === null ? [] : frameDraftsFromSaved(job.frames);
       form.setValues(values);
       // Loading the job being edited into local state when the form opens.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDrafts(rows);
-      setLoaded({ values: snapshot(values), rows: rowsSignature(rows), note: values.note });
+      setFrames(wanted);
+      setLoaded({
+        values: snapshot(values),
+        rows: rowsSignature(rows),
+        frames: snapshot(wanted),
+        note: values.note,
+      });
     } else {
       form.reset();
       setDrafts([]);
-      setLoaded({ values: '', rows: '', note: '' });
+      setFrames([]);
+      setLoaded({ values: '', rows: '', frames: '', note: '' });
     }
     setTried(false);
     setNestedOpen(false);
@@ -102,13 +118,17 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
   }, [active, jobKey]);
 
   const rowsChanged = rowsSignature(drafts) !== loaded.rows;
-  const dirty = active && (snapshot(form.values) !== loaded.values || rowsChanged);
+  const framesChanged = snapshot(frames) !== loaded.frames;
+  const dirty = active && (snapshot(form.values) !== loaded.values || rowsChanged || framesChanged);
 
   const kind = job === null ? ({ kind: 'standard' } as const) : job.kind;
   const rework = isRework(kind);
   // A billed or handed-back job's lines no longer change (the server refuses it too).
   const workLocked =
     job !== null && (job.status === 'delivered' || job.billedInvoiceNumber !== undefined);
+  // Only a photo and framing order lists frames.
+  const framing = form.values.jobType === 'photo-framing';
+  const frameProblem = framing && !workLocked ? framesProblem(frames) : null;
   const totals = usePrintTotals(drafts, rework);
   const workProblem = workLocked ? null : itemsProblem(drafts, kind, form.values.status, totals);
   const hasStockPart = drafts.some((draft) => draft.kind === 'stock');
@@ -148,14 +168,23 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
   /** Saves what is typed; `false` when something on the form stops it. */
   const save = async (values: PrintJobFormValues) => {
     setTried(true);
-    if (workProblem !== null) {
-      notify.error({ title: t('Cannot save the print job'), message: workProblem });
+    const problem = frameProblem === null ? workProblem : frameProblem;
+    if (problem !== null) {
+      notify.error({ title: t('Cannot save the print job'), message: problem });
       return false;
     }
     // Lines are sent only when they changed, so saving a note never fails because stock moved.
     const sendItems = !workLocked && (job === null || rowsChanged);
+    // Frames follow the same rule. An order changed to another kind has its saved ones removed.
+    let sentFrames: PrintJobFrameInput[] | undefined;
+    if (!workLocked && framing && (job === null || framesChanged)) {
+      sentFrames = toFrameInputs(frames);
+    } else if (!workLocked && !framing && job !== null && job.frames.length > 0) {
+      sentFrames = [];
+    }
     const payload = toPrintJobInput(values, {
       items: sendItems ? toItemInputs(drafts, rework) : undefined,
+      frames: sentFrames,
       note: job === null || values.note !== loaded.note,
     });
     await onSubmit(payload);
@@ -186,7 +215,13 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
     form.setValues(next);
     form.clearErrors();
     setDrafts([]);
-    setLoaded({ values: snapshot(next), rows: rowsSignature([]), note: next.note });
+    setFrames([]);
+    setLoaded({
+      values: snapshot(next),
+      rows: rowsSignature([]),
+      frames: snapshot([]),
+      note: next.note,
+    });
     setTried(false);
     form.getInputNode('quantity')?.focus();
   };
@@ -214,6 +249,9 @@ export const usePrintJobEditor = ({ job, active, onSubmit, onSaved }: PrintJobEd
     form,
     drafts,
     setDrafts,
+    frames,
+    setFrames,
+    frameProblem,
     tried,
     nestedOpen,
     setNestedOpen,

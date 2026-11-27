@@ -13,6 +13,7 @@ const JOB: PrintJob = {
   status: 'ready',
   kind: { kind: 'standard' },
   items: [],
+  frames: [],
   priceCents: 4_750_000,
   costCents: 1_200_000,
   assignedEmployeeId: 'emp_1',
