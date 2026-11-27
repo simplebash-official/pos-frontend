@@ -15,7 +15,7 @@ export interface WorkWarrantyFieldsProps {
   onChange: (warranty: ProductWarranty) => void;
 }
 
-/** How long a piece of repair work is covered, who gives the cover, and what it covers. */
+/** How long a line of a job is covered, who gives the cover, and what it covers. */
 export const WorkWarrantyFields = ({ value, onChange }: WorkWarrantyFieldsProps) => {
   const isMobile = useIsMobile();
   return (

@@ -45,7 +45,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { RepairDrawer } from './RepairDrawer';
 import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
 import type { Invoice } from '@/features/billing/types';
-import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { JobReceiptModal, useJobSlips } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import {
@@ -87,9 +87,9 @@ export const RepairJobList = () => {
   const queryClient = useQueryClient();
 
   const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
-  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
+  const slips = useJobSlips(panel.open && panel.mode === 'create', canPrintReceipt);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
@@ -157,12 +157,10 @@ export const RepairJobList = () => {
       const newJob = await createMutation.mutateAsync(values);
       notify.success({
         title: 'Repair Ticket Created',
-        message: newJob.ticketNumber
-          ? `Registered ticket ${newJob.ticketNumber} successfully`
-          : 'Ticket saved — it will get its number once back online',
+        message: `Registered ticket ${newJob.ticketNumber} successfully`,
       });
-      // The customer gets a receipt for what they handed in.
-      if (canPrintReceipt) setReceiptJob(receiptTarget('repair', newJob));
+      // The customer gets a slip for what they handed in, once the form is left.
+      slips.saved(newJob);
     }
   };
 
@@ -385,13 +383,14 @@ export const RepairJobList = () => {
         job={openJob}
         onSubmit={handleFormSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
-        onJobSlip={canPrintReceipt ? (job) => setReceiptJob(receiptTarget('repair', job)) : null}
+        savedTickets={slips.savedTickets}
+        onJobSlip={canPrintReceipt ? (job) => slips.print(job) : null}
         onPrintInvoice={setInvoiceToPrint}
         onBill={(job) => navigate(`${ROUTES.BILLING}?billRepair=${job.id}`)}
-        closeOnEscape={receiptJob === null && invoiceToPrint === null}
+        closeOnEscape={slips.target === null && invoiceToPrint === null}
       />
 
-      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
+      <JobReceiptModal target={slips.target} onClose={slips.close} />
       <TicketInvoicePreview invoice={invoiceToPrint} onClose={() => setInvoiceToPrint(null)} />
     </Stack>
   );

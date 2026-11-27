@@ -5,7 +5,7 @@ import { DiscountPopover } from '@/shared/components/DiscountPopover';
 import { t } from '@/shared/i18n/t';
 import { formatMoney } from '@/shared/lib/money';
 import type { ItemDiscount } from '@/wasm';
-import { fromPopoverDiscount, toPopoverDiscount } from '../lib/repairDiscount';
+import { fromPopoverDiscount, toPopoverDiscount } from './itemDiscount';
 import { ItemActionButton } from './ItemActionButton';
 
 export interface ItemDiscountButtonProps {
@@ -25,7 +25,7 @@ export interface ItemDiscountButtonProps {
 }
 
 /**
- * The discount button on one piece of repair work ("Add discount", "-12.5% · -Rs. 1,500").
+ * The discount button on one line of a job ("Add discount", "-12.5% · -Rs. 1,500").
  * Tapping it opens the same small window the billing counter uses. The amount is the server's,
  * never worked out here.
  */

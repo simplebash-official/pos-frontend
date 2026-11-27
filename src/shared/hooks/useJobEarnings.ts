@@ -16,24 +16,18 @@ export interface CalcEarningsRequest {
 
 export type { CalcEarningsReply };
 
-/** A job form's typed values as the calculator wants them (rupee boxes become cents here, nothing else). */
-export const toEarningsRequest = (values: {
-  estimatedPriceRupees: number | string;
-  materialCostRupees: number | string;
+/** The assigned employee's split as the calculator wants it (a fixed amount becomes cents). */
+export const toSplit = (values: {
   assignedEmployeeId?: string;
   splitType?: 'percentage' | 'fixed';
   splitValueRupeesOrPercent?: number | string;
-}): CalcEarningsRequest => {
+}): Pick<CalcEarningsRequest, 'splitType' | 'splitValue'> => {
   const assigned =
     values.assignedEmployeeId !== undefined &&
     values.assignedEmployeeId !== '' &&
     values.splitType !== undefined;
   const typed = Number(values.splitValueRupeesOrPercent);
   return {
-    priceCents:
-      values.estimatedPriceRupees === '' ? null : toCents(Number(values.estimatedPriceRupees)),
-    materialCostCents:
-      values.materialCostRupees === '' ? 0 : toCents(Number(values.materialCostRupees)),
     splitType: assigned ? (values.splitType as 'percentage' | 'fixed') : null,
     splitValue: Number.isFinite(typed)
       ? values.splitType === 'fixed'

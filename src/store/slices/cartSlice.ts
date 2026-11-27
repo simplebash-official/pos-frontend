@@ -79,6 +79,15 @@ export interface LineDiscountInput {
   value: number;
 }
 
+/**
+ * The cashier's answer to "who is this bill for?" when a job on it belongs to someone else: the
+ * customer being billed (`null` for a walk-in) and the job owners it was answered for.
+ */
+export interface BillToConfirmation {
+  billCustomerKey: string | null;
+  jobCustomerKeys: string[];
+}
+
 export interface HeldCart {
   id: string;
   label?: string;
@@ -86,6 +95,7 @@ export interface HeldCart {
   customerId: string | null;
   customerName: string | null;
   customerPhone?: string | null;
+  billToConfirmation?: BillToConfirmation;
   discountType: DiscountType | null;
   discountValue: number;
   paymentMethod: PaymentMethod;
@@ -102,6 +112,7 @@ interface CartState {
   customerPhone: string | null;
   customerAddress: string | null;
   customerBalanceCents: number;
+  billToConfirmation?: BillToConfirmation;
   discountType: DiscountType | null;
   discountValue: number;
   paymentMethod: PaymentMethod;
@@ -211,6 +222,7 @@ const resetCartState = (state: CartState) => {
   state.customerPhone = null;
   state.customerAddress = null;
   state.customerBalanceCents = 0;
+  state.billToConfirmation = undefined;
   state.discountType = null;
   state.discountValue = 0;
   state.paymentMethod = PAYMENT_METHODS.CASH;
@@ -402,6 +414,14 @@ const cartSlice = createSlice({
       }
     },
 
+    /** Records that the customer now on the bill pays for these job owners' jobs. */
+    confirmBillTo: (state, action: PayloadAction<string[]>) => {
+      state.billToConfirmation = {
+        billCustomerKey: state.customerId,
+        jobCustomerKeys: action.payload,
+      };
+    },
+
     setTenderedAmountCents: (state, action: PayloadAction<number>) => {
       state.tenderedAmountCents = action.payload;
     },
@@ -522,6 +542,7 @@ const cartSlice = createSlice({
         customerId: state.customerId,
         customerName: state.customerName,
         customerPhone: state.customerPhone,
+        billToConfirmation: state.billToConfirmation,
         discountType: state.discountType,
         discountValue: state.discountValue,
         paymentMethod: state.paymentMethod,
@@ -538,6 +559,7 @@ const cartSlice = createSlice({
       state.customerName = null;
       state.customerPhone = null;
       state.customerBalanceCents = 0;
+      state.billToConfirmation = undefined;
       state.discountType = null;
       state.discountValue = 0;
       state.isCredit = false;
@@ -552,6 +574,7 @@ const cartSlice = createSlice({
       state.customerId = target.customerId;
       state.customerName = target.customerName;
       state.customerPhone = target.customerPhone ?? null;
+      state.billToConfirmation = target.billToConfirmation;
       state.discountType = target.discountType;
       state.discountValue = target.discountValue;
       state.paymentMethod = target.paymentMethod;
@@ -656,6 +679,7 @@ export const {
   setLineWarrantyOverride,
   setLineHandover,
   setCustomer,
+  confirmBillTo,
   setTenderedAmountCents,
   setCreditDepositCents,
   setCreditDepositMethod,
@@ -723,6 +747,9 @@ export const selectCustomerInfo = createSelector(
     balanceCents,
   })
 );
+
+export const selectBillToConfirmation = (state: { cart: CartState }) =>
+  state.cart.billToConfirmation;
 
 /** Lines in the cart. A count for badges; what the cart comes to is worked out by the server. */
 export const selectCartItemsCount = createSelector([selectCartItems], (items) => items.length);

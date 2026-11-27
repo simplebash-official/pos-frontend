@@ -1,14 +1,16 @@
-/** The paper a job receipt is printed on. */
+/** The paper a job slip is printed on. */
 export type JobReceiptPaper = 'a5' | 'thermal-58' | 'thermal-80';
 
-/** Which kind of job a receipt is for. */
-export type JobReceiptKind = 'repair' | 'print';
-
-/** The job a receipt is printed for. */
-export interface JobReceiptTarget {
-  kind: JobReceiptKind;
-  /** The job's id (the server also accepts its key). */
+/** One job on a slip. */
+export interface JobSlipJob {
+  /** The job's key. */
   id: string;
   ticketNumber: string;
+}
+
+/** What a slip is printed for: one or more jobs of one customer. */
+export interface JobSlipTarget {
+  customerKey: string;
   customerName: string;
+  jobs: JobSlipJob[];
 }

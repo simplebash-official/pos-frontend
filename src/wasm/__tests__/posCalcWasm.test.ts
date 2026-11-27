@@ -321,8 +321,20 @@ describe('pos-calc-wasm calculations and integration parity', () => {
         jobType: 'custom',
         quantity: 50,
         status: 'ready',
-        estimatedCostCents: 8000,
-        materialCostCents: 2000, // profit = 6000 cents
+        kind: { kind: 'standard' },
+        items: [
+          {
+            key: 'pit_1',
+            description: 'Banner printing',
+            quantity: 1,
+            source: { type: 'service' },
+            unitPriceCents: 8000,
+            costCents: 2000,
+            warranty: { coverage: { kind: 'none' }, warrantyType: 'shop' },
+          },
+        ],
+        priceCents: 8000,
+        costCents: 2000, // profit = 6000 cents
         assignedEmployeeId: 'emp_2',
         splitType: 'fixed',
         splitValue: 1500, // 1500 cents fixed split

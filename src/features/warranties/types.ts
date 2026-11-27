@@ -20,7 +20,7 @@ export interface ProductWarranty {
   terms?: string;
 }
 
-export type WarrantySourceType = 'product_sale' | 'repair';
+export type WarrantySourceType = 'product_sale' | 'repair' | 'print';
 export type WarrantyStatus = 'active' | 'under_claim' | 'void';
 /** Where a warranty stands today, worked out by the server on every read. */
 export type WarrantyState = 'active' | 'expiring_soon' | 'expired' | 'under_claim' | 'void';
@@ -36,6 +36,8 @@ export interface Warranty {
   productKey?: string;
   repairKey?: string;
   repairItemKey?: string;
+  printJobKey?: string;
+  printJobItemKey?: string;
   itemName: string;
   serialNumber?: string;
   quantity: number;
@@ -138,7 +140,7 @@ export interface WarrantyStats {
   openClaimCount: number;
   /** Open over a week, or with a supplier past the day they gave. */
   lateClaimCount: number;
-  /** Parts cost of the rework jobs opened this month. */
+  /** What the rework jobs opened this month cost the shop. */
   reworkCostThisMonthCents: number;
 }
 
@@ -234,6 +236,12 @@ export interface WarrantyClaim {
   /** The free rework job opened from a claim on repair work decided as a repair. */
   reworkRepairKey?: string;
   reworkRepairNumber?: string;
+  /** The paid print job made from a rejected claim on print work. */
+  paidPrintJobKey?: string;
+  paidPrintJobNumber?: string;
+  /** The free rework print job opened from a claim on print work decided as a repair. */
+  reworkPrintJobKey?: string;
+  reworkPrintJobNumber?: string;
   supplier?: SupplierClaim;
   receivedOn: string;
   resolvedOn?: string;

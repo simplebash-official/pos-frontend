@@ -6,6 +6,7 @@ import type {
   SupplierOutcome,
   VoidChecks,
   WarrantyClaim,
+  WarrantySourceType,
 } from '../types';
 import type { StateLook } from './warrantyView';
 
@@ -172,18 +173,26 @@ export type ClaimAction =
   | 'refund'
   | 'return'
   | 'paidRepair'
+  | 'paidPrintJob'
   | 'rework';
 
 /**
- * The steps that can be taken next, first one first. `onRepairWork` is whether the claimed
- * warranty came with repair work (it can then be redone as a free rework job); pass `false`
- * while the warranty is not known.
+ * The steps that can be taken next, first one first. `source` is where the claimed warranty came
+ * from: repair or print work can be redone as a free rework job, and a rejected claim on print
+ * work becomes a paid print job instead of a paid repair. Pass `null` while it is not known.
  */
-export const claimActions = (claim: WarrantyClaim, onRepairWork: boolean): ClaimAction[] => {
-  const paidRepair: ClaimAction[] =
-    claim.decision === 'reject' && claim.paidRepairKey === undefined ? ['paidRepair'] : [];
+export const claimActions = (
+  claim: WarrantyClaim,
+  source: WarrantySourceType | null
+): ClaimAction[] => {
+  const paidJobMade = claim.paidRepairKey !== undefined || claim.paidPrintJobKey !== undefined;
+  const paidJob: ClaimAction[] =
+    claim.decision === 'reject' && !paidJobMade
+      ? [source === 'print' ? 'paidPrintJob' : 'paidRepair']
+      : [];
+  const reworked = claim.reworkRepairKey !== undefined || claim.reworkPrintJobKey !== undefined;
   const rework: ClaimAction[] =
-    onRepairWork && claim.decision === 'repair' && claim.reworkRepairKey === undefined
+    (source === 'repair' || source === 'print') && claim.decision === 'repair' && !reworked
       ? ['rework']
       : [];
   switch (claim.status) {
@@ -197,9 +206,9 @@ export const claimActions = (claim: WarrantyClaim, onRepairWork: boolean): Claim
     case 'at_supplier':
       return ['supplierReturn'];
     case 'resolved':
-      return claim.decision === 'refund' ? [] : ['return', ...paidRepair];
+      return claim.decision === 'refund' ? [] : ['return', ...paidJob];
     case 'returned':
-      return paidRepair;
+      return paidJob;
   }
 };
 

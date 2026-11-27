@@ -5,40 +5,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
-import { MotionGlobalConfig } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+import { installDrawerTestEnv } from '@/shared/components/drawer/testEnv';
+import { TestHarness } from '@/shared/components/drawer/TestHarness';
 import { PrintJobFormHost } from '../../testing/PrintJobFormHost';
 import type { PrintJob, PrintJobInput } from '../../types';
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-MotionGlobalConfig.skipAnimations = true;
+installDrawerTestEnv();
 
-if (typeof window.matchMedia !== 'function') {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: (query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: () => undefined,
-      removeListener: () => undefined,
-      addEventListener: () => undefined,
-      removeEventListener: () => undefined,
-      dispatchEvent: () => false,
-    }),
+// jsdom has no font loading API; Mantine's growing text box listens to it.
+if (!('fonts' in document)) {
+  Object.defineProperty(document, 'fonts', {
+    value: { addEventListener: () => undefined, removeEventListener: () => undefined },
   });
 }
 
-if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === 'undefined') {
-  class ResizeObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
-  (globalThis as { ResizeObserver?: unknown }).ResizeObserver = ResizeObserverStub;
-}
-
-// The assignment block has its own tests; this file is about the customer and price rules.
+// The assignment block has its own tests; this file is about the order, its items and the note.
 vi.mock('@/features/employees/components/AssigneeSection', () => ({
   AssigneeSection: () => null,
 }));
@@ -64,20 +46,60 @@ vi.mock('@/features/customers/components/CustomerPickerModal', () => ({
     ) : null,
 }));
 
-vi.mock('@/shared/hooks/useResponsive', () => ({
-  useIsMobile: () => false,
+vi.mock('@/features/inventory/hooks/useProducts', () => ({
+  useAllProducts: () => ({ data: [], isLoading: false }),
 }));
-
+vi.mock('@/features/inventory/hooks/useCategories', () => ({
+  useCategories: () => ({ data: [], isLoading: false }),
+  useCategoryIcons: () => null,
+  useCategoryLookup: () => ({ getCategory: () => undefined, getCategoryName: () => '' }),
+}));
+vi.mock('../../hooks/usePrintServices', () => ({
+  usePrintServices: () => ({
+    data: [
+      {
+        key: 'pst_1',
+        name: 'Design fee',
+        unitPriceCents: 50_000,
+        warranty: { coverage: { kind: 'none' }, warrantyType: 'shop' },
+        active: true,
+      },
+    ],
+    isLoading: false,
+  }),
+}));
 vi.mock('@/shared/hooks/useJobEarnings', () => ({
   useJobEarnings: () => ({ data: undefined }),
-  toEarningsRequest: () => ({}),
+  toSplit: () => ({ splitType: null, splitValue: 0 }),
 }));
-
 vi.mock('@/shared/i18n/t', () => ({
   t: (key: string) => key,
 }));
 
-describe('the print job panel form: customer', () => {
+const makeJob = (overrides: Partial<PrintJob> = {}): PrintJob => ({
+  id: 'prn_1',
+  ticketNumber: 'PRN-000001',
+  customerKey: 'cus_dhanushka',
+  customerName: 'Dhanushka Fernando',
+  customerPhone: '0712345678',
+  jobType: 'mug',
+  quantity: 1,
+  status: 'received',
+  kind: { kind: 'standard' },
+  items: [],
+  priceCents: 0,
+  costCents: 0,
+  createdAt: '2026-08-20T10:00:00.000Z',
+  ...overrides,
+});
+
+/** Shows where the form sent the browser. */
+const Address = () => {
+  const location = useLocation();
+  return <output data-testid="address">{`${location.pathname}${location.search}`}</output>;
+};
+
+describe('the print job panel form', () => {
   let container: HTMLDivElement | null = null;
   let root: Root | null = null;
 
@@ -119,9 +141,10 @@ describe('the print job panel form: customer', () => {
 
     act(() => {
       root!.render(
-        <MantineProvider>
+        <TestHarness role="admin">
           <PrintJobFormHost {...defaultProps} />
-        </MantineProvider>
+          <Address />
+        </TestHarness>
       );
     });
 
@@ -129,7 +152,17 @@ describe('the print job panel form: customer', () => {
   };
 
   const buttons = () => [...document.querySelectorAll('button')];
+  const fee = () => buttons().find((b) => b.textContent?.includes('Design fee'));
   const button = (label: string) => buttons().find((b) => b.textContent?.trim() === label);
+  const typeNote = async (value: string) => {
+    const note = document.querySelector<HTMLTextAreaElement>('textarea');
+    expect(note).not.toBeNull();
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!;
+      setter.call(note, value);
+      note?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  };
   const submitForm = async () => {
     await act(async () => {
       document
@@ -145,13 +178,7 @@ describe('the print job panel form: customer', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
 
     renderModal({ onClose });
-    const price = document.querySelector<HTMLInputElement>('input[placeholder="e.g. 25000"]');
-    expect(price).not.toBeNull();
-    await act(async () => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
-      setter.call(price, '1500');
-      price?.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    await typeNote('Two boxes');
     await act(async () => button('Cancel')?.click());
     await vi.waitFor(() => expect(document.body.textContent).toContain('Discard unsaved changes?'));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -179,19 +206,7 @@ describe('the print job panel form: customer', () => {
   });
 
   it('offers only the print job steps, with in production in place of in repair', async () => {
-    const existingJob = {
-      id: 'prn_2',
-      ticketNumber: 'PRN-002',
-      customerKey: 'cus_dhanushka',
-      customerName: 'Dhanushka Fernando',
-      customerPhone: '0712345678',
-      jobType: 'mug' as const,
-      quantity: 1,
-      status: 'in_repair' as const,
-      estimatedCostCents: 2500000,
-      createdAt: '2026-08-20T10:00:00.000Z',
-    };
-    renderModal({ onSubmit: vi.fn(), jobToEdit: existingJob });
+    renderModal({ onSubmit: vi.fn(), jobToEdit: makeJob({ status: 'in_repair' }) });
 
     const status = document.querySelector<HTMLInputElement>('input[value="In Production"]');
     expect(status).not.toBeNull();
@@ -215,21 +230,9 @@ describe('the print job panel form: customer', () => {
     expect(options).not.toContain('In Repair');
   });
 
-  it('sends only the key of the customer when a job is saved', async () => {
+  it('sends only the key of the customer when a job is saved, keeping its items and note', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
-    const existingJob = {
-      id: 'prn_1',
-      ticketNumber: 'PRN-001',
-      customerKey: 'cus_dhanushka',
-      customerName: 'Dhanushka Fernando',
-      customerPhone: '0712345678',
-      jobType: 'mug' as const,
-      quantity: 1,
-      status: 'received' as const,
-      estimatedCostCents: 2500000,
-      createdAt: '2026-08-20T10:00:00.000Z',
-    };
-    renderModal({ onSubmit, jobToEdit: existingJob });
+    renderModal({ onSubmit, jobToEdit: makeJob({ note: 'Saved note' }) });
     expect(document.body.textContent).toContain('Dhanushka Fernando');
 
     await act(async () => button('Change customer')?.click());
@@ -237,6 +240,108 @@ describe('the print job panel form: customer', () => {
     await submitForm();
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(onSubmit.mock.calls[0][0].customer).toEqual({ customerKey: 'cust_1' });
+    const sent = onSubmit.mock.calls[0][0] as PrintJobInput;
+    expect(sent.customer).toEqual({ customerKey: 'cust_1' });
+    expect(sent.items).toBeUndefined();
+    expect(sent.note).toBeUndefined();
+  });
+
+  it('sends the items and the note once they are changed', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+
+    await act(async () => fee()?.click());
+    await typeNote('  Deliver in two boxes  ');
+    await submitForm();
+
+    const sent = onSubmit.mock.calls[0][0] as PrintJobInput;
+    expect(sent.items).toMatchObject([
+      {
+        description: 'Design fee',
+        quantity: 1,
+        source: { type: 'service', unitPriceCents: 50_000 },
+      },
+    ]);
+    expect(sent.note).toBe('Deliver in two boxes');
+  });
+
+  it('saves the optional cost of a service line, and leaves it out when empty', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+    await act(async () => fee()?.click());
+    const box = () =>
+      document.querySelector<HTMLInputElement>(
+        'input[aria-label="Cost to shop, each: Design fee"]'
+      );
+    expect(box()?.placeholder).toBe('Optional');
+    expect(document.body.textContent).not.toContain('Profit Rs.');
+    // Both boxes are named on screen, in one row: the cost and then the price.
+    const labels = Array.from(document.querySelectorAll('label'), (label) => label.textContent);
+    expect(labels).toEqual(expect.arrayContaining(['Cost to shop, each', 'Price for one']));
+    const price = document.querySelector('input[aria-label="Price for one: Design fee"]')!;
+    expect(box()!.compareDocumentPosition(price)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(box(), '200');
+      box()?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(document.body.textContent).toContain('Profit Rs. 300.00');
+    await submitForm();
+    expect((onSubmit.mock.calls[0][0] as PrintJobInput).items).toMatchObject([
+      { source: { type: 'service', unitPriceCents: 50_000, unitCostCents: 20_000 } },
+    ]);
+  });
+
+  it('refuses a note that is too long, and says the limit', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+
+    await typeNote('a'.repeat(1001));
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain('A note can be at most 1000 characters.');
+    expect(document.body.textContent).toContain('1001 / 1000');
+  });
+
+  it('will not mark a job with no items ready', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob({ status: 'ready' }) });
+
+    await submitForm();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain(
+      'Add the items before marking this job ready or delivered.'
+    );
+  });
+
+  it('saves first, then opens the bill for the job', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+    // Nothing to bill until it has an item.
+    expect(button('Update & bill')).toBeUndefined();
+
+    await act(async () => fee()?.click());
+    await act(async () => button('Update & bill')?.click());
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('[data-testid="address"]')?.textContent).toBe(
+      '/billing?billPrint=prn_1'
+    );
+  });
+
+  it('stays on the form when the save before billing fails', async () => {
+    const onSubmit = vi.fn().mockRejectedValue(new Error('Not enough stock'));
+    renderModal({ onSubmit, jobToEdit: makeJob() });
+
+    await act(async () => fee()?.click());
+    await act(async () => button('Update & bill')?.click());
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('[data-testid="address"]')?.textContent).not.toContain(
+      'billPrint'
+    );
   });
 });

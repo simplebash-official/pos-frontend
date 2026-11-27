@@ -58,6 +58,7 @@ import { SegmentedToggle } from '@/shared/components/SegmentedToggle';
 import { PAYMENT_METHODS, PaymentMethod } from '@/constants/payment';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { handoverBlockers } from '../lib/handover';
+import { useBillTo } from '../hooks/useBillTo';
 import { getSaleHeroPresentation, isOnAccountSale } from '../lib/saleHeroPresentation';
 import { useInvoiceBalance } from '../hooks/useInvoiceBalance';
 import type { CalcCheckoutReply, Invoice, SplitPaymentDetail } from '../types';
@@ -124,6 +125,7 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
     } = checkout;
     const { splitRemainingCents } = paymentState;
     const { customerId, customerName, customerBalanceCents } = useCartCustomer();
+    const billTo = useBillTo();
     const {
       paymentMethod,
       changePaymentMethod,
@@ -379,6 +381,7 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
     const isButtonDisabled =
       hasOutOfStockItems ||
       handoverPending ||
+      billTo.blocked ||
       !isCurrent ||
       !hasActiveSession ||
       isCartEmpty ||
@@ -393,6 +396,14 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
         paymentMethod === PAYMENT_METHODS.SPLIT &&
         (isSplitIncomplete || isSplitCardDigitsMissing) &&
         !isCredit);
+
+    // What the button and the line under it say while the bill-to question holds payment.
+    const billToLabel =
+      billTo.status === 'loading'
+        ? t('Checking job customers…')
+        : billTo.status === 'error'
+          ? t('Retry under Bill to to continue')
+          : t('Choose who to bill to continue');
 
     // Print document options based on mode (No print first; Credit has only No print and Unpaid invoice)
     const printOptions = useMemo(() => {
@@ -1751,6 +1762,19 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
             </Alert>
           )}
 
+          {billTo.unanswered.length > 0 && (
+            <Alert
+              icon={<IconAlertTriangle size={16} />}
+              color="orange"
+              variant="light"
+              p="xs"
+              mb="xs"
+              title={t('Choose who to bill')}
+            >
+              {`${billTo.unanswered.flatMap((owner) => owner.ticketNumbers).join(', ')}: ${t('belongs to another customer. Answer under Bill to.')}`}
+            </Alert>
+          )}
+
           {handoverPending && (
             <Alert
               icon={<IconAlertTriangle size={16} />}
@@ -1818,23 +1842,25 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
                   ? t('Open Shift to Complete Sale')
                   : hasOutOfStockItems
                     ? t('Out of Stock Items in Cart')
-                    : handoverPending
-                      ? t('Choose hand over to continue')
-                      : isRefundDue
-                        ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
-                        : isEvenExchange
-                          ? `Complete Even Exchange`
-                          : isCredit
-                            ? confirmCreditRequired
-                              ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
-                              : creditPaidNowCents > 0
-                                ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
-                                : `Issue on Credit · ${formatMoney(totalCents)}`
-                            : isCashShort || isCardShort
-                              ? `Short by ${formatMoney(shortByCents)}`
-                              : isCardDigitsMissing || isSplitCardDigitsMissing
-                                ? 'Enter Card Last 4 Digits'
-                                : `Complete · ${formatMoney(totalCents)}`}
+                    : billTo.blocked
+                      ? billToLabel
+                      : handoverPending
+                        ? t('Choose hand over to continue')
+                        : isRefundDue
+                          ? `Pay Cashback of ${formatMoney(Math.abs(totalCents))}`
+                          : isEvenExchange
+                            ? `Complete Even Exchange`
+                            : isCredit
+                              ? confirmCreditRequired
+                                ? `Confirm Credit Sale · New Bal ${formatMoney(newCreditBalanceCents)}`
+                                : creditPaidNowCents > 0
+                                  ? `Take ${formatMoney(creditPaidNowCents)} now · ${formatMoney(creditRemainderCents)} on account`
+                                  : `Issue on Credit · ${formatMoney(totalCents)}`
+                              : isCashShort || isCardShort
+                                ? `Short by ${formatMoney(shortByCents)}`
+                                : isCardDigitsMissing || isSplitCardDigitsMissing
+                                  ? 'Enter Card Last 4 Digits'
+                                  : `Complete · ${formatMoney(totalCents)}`}
           </Button>
           <Text
             size="xs"
@@ -1853,25 +1879,27 @@ const PaymentPanelBody = forwardRef<PaymentPanelHandle, PaymentPanelBodyProps>(
                   ? t(
                       'Cannot complete sale: Cart contains out-of-stock items. Adjust quantities or click Quotation.'
                     )
-                  : handoverPending
-                    ? t('Choose Now or Later for each repair or print job above.')
-                    : isRefundDue
-                      ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
-                      : isEvenExchange
-                        ? 'No payment or refund required · Press F2'
-                        : confirmCreditRequired
-                          ? isMobile
-                            ? 'Customer has existing debt. Tap again to confirm credit sale.'
-                            : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
-                          : isButtonDisabled
-                            ? isCashShort
-                              ? 'Enter tendered cash amount to complete'
-                              : isCardDigitsMissing || isSplitCardDigitsMissing
-                                ? 'Card last 4 digits required to complete payment'
-                                : isSplitIncomplete
-                                  ? 'Allocate the full total across split payments'
-                                  : 'Complete disabled'
-                            : `${printConsequenceText} · Press F2`}
+                  : billTo.blocked
+                    ? billToLabel
+                    : handoverPending
+                      ? t('Choose Now or Later for each repair or print job above.')
+                      : isRefundDue
+                        ? `Hand ${formatMoney(Math.abs(totalCents))} cashback to customer · Press F2`
+                        : isEvenExchange
+                          ? 'No payment or refund required · Press F2'
+                          : confirmCreditRequired
+                            ? isMobile
+                              ? 'Customer has existing debt. Tap again to confirm credit sale.'
+                              : 'Customer has existing debt. Press F2 or click again to confirm credit sale.'
+                            : isButtonDisabled
+                              ? isCashShort
+                                ? 'Enter tendered cash amount to complete'
+                                : isCardDigitsMissing || isSplitCardDigitsMissing
+                                  ? 'Card last 4 digits required to complete payment'
+                                  : isSplitIncomplete
+                                    ? 'Allocate the full total across split payments'
+                                    : 'Complete disabled'
+                              : `${printConsequenceText} · Press F2`}
           </Text>
         </Box>
         <OpenSessionModal

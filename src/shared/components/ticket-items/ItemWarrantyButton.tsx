@@ -4,7 +4,7 @@ import { IconShieldCheck, IconShieldOff } from '@tabler/icons-react';
 import { coverageLabel, profileProblem, type ProductWarranty } from '@/features/warranties';
 import { useIsMobile } from '@/shared/hooks/useResponsive';
 import { t } from '@/shared/i18n/t';
-import { cleanWarranty } from '../lib/repairItems';
+import { cleanWarranty } from './warranty';
 import { ItemActionButton } from './ItemActionButton';
 import { WorkWarrantyFields } from './WorkWarrantyFields';
 
@@ -16,7 +16,7 @@ export interface ItemWarrantyButtonProps {
 }
 
 /**
- * The warranty button on one piece of repair work ("3 months", "No warranty"). Tapping it opens a
+ * The warranty button on one line of a job ("3 months", "No warranty"). Tapping it opens a
  * small editor: how long, who gives it, and what it covers.
  */
 export const ItemWarrantyButton = ({ value, onChange, readOnly }: ItemWarrantyButtonProps) => {

@@ -10,6 +10,7 @@ import {
   IconClockHour4,
   IconGavel,
   IconPhone,
+  IconPrinter,
   IconReceiptRefund,
   IconShieldCheck,
   IconSearch,
@@ -64,6 +65,7 @@ const ACTION_LABEL: Record<ClaimAction, string> = {
   refund: 'Give the refund',
   return: 'Give it back',
   paidRepair: 'Make a paid repair job',
+  paidPrintJob: 'Make a paid print job',
   rework: 'Open the rework job',
 };
 
@@ -96,6 +98,7 @@ export const ClaimDetailDrawer = ({
   const canRecord = useHasPermission(PERMISSIONS.WARRANTY_CLAIMS_RECORD);
   const selfApproves = useCanSelfApprove();
   const canRepair = useHasPermission(PERMISSIONS.REPAIRS_WRITE);
+  const canPrint = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
   const canSeePhotos = useHasPermission(PERMISSIONS.ATTACHMENTS_VIEW);
   const [dialog, setDialog] = useState<DialogAction | null>(null);
   const [photosOpen, setPhotosOpen] = useState(false);
@@ -117,10 +120,21 @@ export const ClaimDetailDrawer = ({
     setDialog(action);
   };
 
-  // Opening a repair job, paid or rework, also needs `repairs:write`.
-  const allowed = (action: ClaimAction) =>
-    canRecord && ((action !== 'paidRepair' && action !== 'rework') || canRepair);
-  const onRepairWork = warranty.data?.warranty.sourceType === 'repair';
+  const source = warranty.data === undefined ? null : warranty.data.warranty.sourceType;
+  // Opening a job, paid or rework, also needs the right to change that kind of job.
+  const allowed = (action: ClaimAction) => {
+    if (!canRecord) return false;
+    switch (action) {
+      case 'paidRepair':
+        return canRepair;
+      case 'paidPrintJob':
+        return canPrint;
+      case 'rework':
+        return source === 'print' ? canPrint : canRepair;
+      default:
+        return true;
+    }
+  };
 
   return (
     <>
@@ -146,7 +160,7 @@ export const ClaimDetailDrawer = ({
               </DrawerFooter>
             );
           }
-          const actions = claimActions(loaded.claim, onRepairWork).filter(allowed);
+          const actions = claimActions(loaded.claim, source).filter(allowed);
           return (
             <DrawerFooter
               start={
@@ -414,7 +428,9 @@ export const ClaimDetailDrawer = ({
                   c.replacementSerialNumber !== undefined ||
                   c.creditNoteKey !== undefined ||
                   c.paidRepairNumber !== undefined ||
-                  c.reworkRepairNumber !== undefined) && (
+                  c.reworkRepairNumber !== undefined ||
+                  c.paidPrintJobNumber !== undefined ||
+                  c.reworkPrintJobNumber !== undefined) && (
                   <DrawerCard label={t('Outcome')} icon={<IconReceiptRefund size={14} />}>
                     <Stack gap="xs">
                       {c.replacementSerialNumber !== undefined && (
@@ -440,6 +456,27 @@ export const ClaimDetailDrawer = ({
                           >
                             {c.reworkRepairNumber}
                           </Anchor>
+                        </InfoRow>
+                      )}
+                      {c.reworkPrintJobKey !== undefined &&
+                        c.reworkPrintJobNumber !== undefined && (
+                          <InfoRow icon={<IconPrinter size={14} />} label={t('Rework job')} mono>
+                            <Anchor
+                              component="button"
+                              type="button"
+                              size="sm"
+                              ff="monospace"
+                              onClick={() =>
+                                navigate(`${ROUTES.PRINT_JOBS}?jobKey=${c.reworkPrintJobKey}`)
+                              }
+                            >
+                              {c.reworkPrintJobNumber}
+                            </Anchor>
+                          </InfoRow>
+                        )}
+                      {c.paidPrintJobNumber !== undefined && (
+                        <InfoRow icon={<IconPrinter size={14} />} label={t('Paid print job')} mono>
+                          {c.paidPrintJobNumber}
                         </InfoRow>
                       )}
                       {c.paidRepairNumber !== undefined && (
@@ -470,6 +507,7 @@ export const ClaimDetailDrawer = ({
         <ClaimStepDialog
           claim={claim}
           action={dialog}
+          source={warranty.data.warranty.sourceType}
           warrantyEndsOn={warranty.data.warranty.endsOn}
           onClose={() => setDialog(null)}
         />

@@ -355,6 +355,7 @@ export interface WarrantyReport {
   claimRateBps: number;
   byProduct: ClaimRateRow[];
   byRepairService: ClaimRateRow[];
+  byPrintWork: ClaimRateRow[];
   byTechnician: ClaimRateRow[];
   bySupplier: SupplierClaimRow[];
   reworkByMonth: ReworkMonth[];

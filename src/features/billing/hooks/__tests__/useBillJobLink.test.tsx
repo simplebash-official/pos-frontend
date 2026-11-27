@@ -10,22 +10,20 @@ import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import cartReducer, { setCustomer } from '@/store/slices/cartSlice';
+import type { PrintJob } from '@/features/print-jobs';
+import * as printJobsApi from '@/features/print-jobs/api/printJobsApi';
 import type { RepairJob } from '@/features/repairs';
 import * as repairsApi from '@/features/repairs/api/repairsApi';
-import * as resolveCustomer from '../../lib/resolveOrCreateCustomer';
-import { useBillRepairLink } from '../useBillRepairLink';
+import { useBillJobLink } from '../useBillJobLink';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 vi.mock('@/features/repairs/api/repairsApi', () => ({ fetchRepairJob: vi.fn() }));
-vi.mock('../../lib/resolveOrCreateCustomer', () => ({ resolveOrCreateCustomer: vi.fn() }));
-vi.mock('@/features/customers', () => ({
-  useCreateCustomer: () => ({ mutateAsync: vi.fn() }),
-}));
+vi.mock('@/features/print-jobs/api/printJobsApi', () => ({ fetchPrintJob: vi.fn() }));
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
 
 const fetchRepairJob = vi.mocked(repairsApi.fetchRepairJob);
-const resolveOrCreateCustomer = vi.mocked(resolveCustomer.resolveOrCreateCustomer);
+const fetchPrintJob = vi.mocked(printJobsApi.fetchPrintJob);
 const show = vi.mocked(notifications.show);
 
 const JOB: RepairJob = {
@@ -53,12 +51,38 @@ const JOB: RepairJob = {
   createdAt: '2026-11-03T05:00:00Z',
 };
 
+const PRINT_JOB: PrintJob = {
+  id: 'prn_1',
+  ticketNumber: 'PRN-000001',
+  customerKey: 'cus_nimal',
+  customerName: 'Nimal Perera',
+  customerPhone: '0771234567',
+  jobType: 'mug',
+  quantity: 50,
+  status: 'ready',
+  kind: { kind: 'standard' },
+  items: [
+    {
+      key: 'pit_1',
+      description: 'Mug printing',
+      quantity: 50,
+      source: { type: 'service' },
+      unitPriceCents: 95_000,
+      costCents: 0,
+      warranty: { coverage: { kind: 'none' }, warrantyType: 'shop' },
+    },
+  ],
+  priceCents: 4_750_000,
+  costCents: 0,
+  createdAt: '2026-11-03T05:00:00Z',
+};
+
 const Probe = () => {
-  useBillRepairLink();
+  useBillJobLink();
   return <output data-testid="search">{useLocation().search}</output>;
 };
 
-describe('useBillRepairLink', () => {
+describe('useBillJobLink', () => {
   let container: HTMLDivElement;
   let root: Root;
   let store: ReturnType<typeof makeStore>;
@@ -66,7 +90,7 @@ describe('useBillRepairLink', () => {
 
   beforeEach(() => {
     fetchRepairJob.mockReset();
-    resolveOrCreateCustomer.mockReset();
+    fetchPrintJob.mockReset();
     show.mockReset();
     store = makeStore();
     container = document.createElement('div');
@@ -92,11 +116,6 @@ describe('useBillRepairLink', () => {
 
   it('puts the repair on the bill, tells the cashier and takes the link out of the address', async () => {
     fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue({
-      key: 'cust_1',
-      name: 'Nimal Perera',
-      primaryPhone: '0771234567',
-    } as never);
 
     await render('/billing?billRepair=rep_1');
 
@@ -113,12 +132,10 @@ describe('useBillRepairLink', () => {
       expect.objectContaining({ title: 'Repair added to the bill', color: 'teal' })
     );
     expect(search()).toBe('');
-    expect(store.getState().cart.customerId).toBe('cust_1');
   });
 
   it('adds one line even when the screen draws twice', async () => {
     fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue(null);
 
     await render('/billing?billRepair=rep_1', true);
 
@@ -159,36 +176,73 @@ describe('useBillRepairLink', () => {
     expect(search()).toBe('');
   });
 
-  it('keeps the customer already on the bill', async () => {
+  it('leaves the customer on the bill to the bill-to card', async () => {
     store.dispatch(setCustomer({ id: 'cust_9', name: 'Kamal' }));
     fetchRepairJob.mockResolvedValue(JOB);
 
     await render('/billing?billRepair=rep_1');
 
     expect(lines()).toHaveLength(1);
-    expect(resolveOrCreateCustomer).not.toHaveBeenCalled();
     expect(store.getState().cart.customerId).toBe('cust_9');
   });
 
-  it('attaches the name and phone alone when no saved customer is found or the lookup fails', async () => {
-    fetchRepairJob.mockResolvedValue(JOB);
-    resolveOrCreateCustomer.mockResolvedValue(null);
-    await render('/billing?billRepair=rep_1');
-    expect(store.getState().cart.customerId).toBeNull();
-    expect(store.getState().cart.customerName).toBe('Nimal Perera');
-    expect(store.getState().cart.customerPhone).toBe('0771234567');
+  it('puts a print job on the bill at its own price and takes the link out', async () => {
+    fetchPrintJob.mockResolvedValue(PRINT_JOB);
 
-    act(() => root.unmount());
-    store = makeStore();
-    root = createRoot(container);
-    resolveOrCreateCustomer.mockRejectedValue(new Error('offline'));
-    await render('/billing?billRepair=rep_1');
-    expect(store.getState().cart.customerName).toBe('Nimal Perera');
+    await render('/billing?billPrint=prn_1', true);
+
+    expect(fetchPrintJob).toHaveBeenCalledWith('prn_1');
+    expect(fetchRepairJob).not.toHaveBeenCalled();
+    expect(lines()).toHaveLength(1);
+    expect(lines()[0]).toMatchObject({
+      productId: 'prn_1',
+      sourceType: 'print',
+      sourceTicketNumber: 'PRN-000001',
+      unitPriceCents: 4_750_000,
+      quantity: 1,
+    });
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Print job added to the bill', color: 'teal' })
+    );
+    expect(search()).toBe('');
+  });
+
+  it('says why a print job cannot be billed and adds nothing', async () => {
+    fetchPrintJob.mockResolvedValue({ ...PRINT_JOB, billedInvoiceNumber: 'INV-2026-000009' });
+
+    await render('/billing?billPrint=prn_1');
+
+    expect(lines()).toHaveLength(0);
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Already billed',
+        message: 'PRN-000001: this print job was already billed on INV-2026-000009.',
+        color: 'red',
+      })
+    );
+    expect(search()).toBe('');
+  });
+
+  it('shows the error when the print job cannot be loaded and clears the link', async () => {
+    fetchPrintJob.mockRejectedValue(new Error('Print job not found'));
+
+    await render('/billing?billPrint=prn_9');
+
+    expect(lines()).toHaveLength(0);
+    expect(show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Could not add the print job',
+        message: 'Print job not found',
+        color: 'red',
+      })
+    );
+    expect(search()).toBe('');
   });
 
   it('does nothing without the link', async () => {
     await render('/billing');
     expect(fetchRepairJob).not.toHaveBeenCalled();
+    expect(fetchPrintJob).not.toHaveBeenCalled();
     expect(lines()).toHaveLength(0);
     expect(show).not.toHaveBeenCalled();
   });

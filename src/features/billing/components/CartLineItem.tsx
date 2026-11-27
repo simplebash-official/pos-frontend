@@ -9,6 +9,7 @@ import {
   IconTag,
   IconShieldCheck,
   IconReceipt2,
+  IconUser,
 } from '@tabler/icons-react';
 
 import { formatMoney } from '@/shared/lib/money';
@@ -39,6 +40,8 @@ export interface CartLineItemProps {
   isNewest?: boolean;
   /** Whether the sale is on credit: a repair or print job then asks what happens to it. */
   isCredit: boolean;
+  /** Whose job this line is, when someone else is being billed. */
+  jobOwnerName?: string;
   /** The sale is completed, so what happens to a repair or print job can no longer change. */
   handoverLocked: boolean;
   onUpdateQty: (id: string, qty: number) => void;
@@ -52,6 +55,7 @@ export const CartLineItem = memo(function CartLineItem({
   lineTotalCents,
   isNewest = false,
   isCredit,
+  jobOwnerName,
   handoverLocked,
   onUpdateQty,
   onUpdateLineDiscount,
@@ -343,6 +347,21 @@ export const CartLineItem = memo(function CartLineItem({
           </Text>
         </Group>
       </Group>
+
+      {jobOwnerName !== undefined && (
+        <Group
+          gap={6}
+          px="xs"
+          py={4}
+          wrap="nowrap"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          <IconUser size={12} style={{ flexShrink: 0 }} />
+          <Text size="xs" c="dimmed" truncate>
+            {`${t('Job of')} ${jobOwnerName}`}
+          </Text>
+        </Group>
+      )}
 
       {isServiceJob && (
         <LineHandoverControl

@@ -90,6 +90,7 @@ if (!('fonts' in document)) {
 
 const api = {
   services: vi.mocked(servicesApi.fetchRepairServices),
+  create: vi.mocked(servicesApi.createRepairService),
   update: vi.mocked(servicesApi.updateRepairService),
   warranties: vi.mocked(warrantiesApi.fetchWarranties),
 };
@@ -256,6 +257,7 @@ describe('repair jobs as items', () => {
     mockProducts.length = 0;
     mockCategories.length = 0;
     api.services.mockReset();
+    api.create.mockReset();
     api.update.mockReset();
     api.warranties.mockReset();
     api.services.mockResolvedValue([SCREEN_SERVICE]);
@@ -700,6 +702,133 @@ describe('repair jobs as items', () => {
     );
   });
 
+  const costBox = (line: string) =>
+    document.querySelector<HTMLInputElement>(`input[aria-label="Cost to shop: ${line}"]`);
+  const typeInto = async (box: HTMLInputElement | null | undefined, value: string) => {
+    expect(box).toBeTruthy();
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(box, value);
+      box?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  };
+  /** The input under a visible field label, as in the settings window. */
+  const labelled = (label: string) => {
+    const found = [...document.querySelectorAll('label')].find(
+      (candidate) => candidate.textContent?.trim() === label
+    );
+    return document.getElementById(found?.htmlFor ?? '') as HTMLInputElement | null;
+  };
+  const boardRow = { ...blankItem(), description: 'Board repair', feeRupees: 5_000 };
+
+  it('takes an optional cost on a fee row and shows the profit once it is typed', async () => {
+    await render(<EditorHost rework={false} start={[boardRow]} />);
+    expect(costBox('Board repair')?.placeholder).toBe('Optional');
+    expect(text()).not.toContain(`Profit ${formatMoney(500_000)}`);
+
+    await typeInto(costBox('Board repair'), '1500');
+    expect(text()).toContain(`Profit ${formatMoney(350_000)}`);
+    // The footer is the whole job's profit: what the customer pays less every cost.
+    expect(text()).toContain(`Profit: ${formatMoney(350_000)}`);
+
+    await typeInto(costBox('Board repair'), '');
+    expect(text()).not.toContain(`Profit ${formatMoney(500_000)}`);
+    expect(text()).toContain(`Profit: ${formatMoney(500_000)}`);
+  });
+
+  it('fills the fee and the cost from a quick fee that saves both', async () => {
+    api.services.mockResolvedValue([{ ...SCREEN_SERVICE, laborCostCents: 100_000 }]);
+    await render(<EditorHost rework={false} start={[]} />);
+    await vi.waitFor(() => expect(button('Screen replacement')).toBeDefined());
+    await act(async () => button('Screen replacement')?.click());
+    expect(costBox('Screen replacement')?.value).toBe('Rs. 1,000');
+    expect(text()).toContain(`Profit ${formatMoney(150_000)}`);
+  });
+
+  it('leaves the cost box open on a rework, where the work still costs the shop', async () => {
+    await render(<EditorHost rework start={[{ ...blankItem(), description: 'Refit screen' }]} />);
+    expect(costBox('Refit screen')?.disabled).toBe(false);
+    await typeInto(costBox('Refit screen'), '700');
+    expect(text()).toContain(`Profit ${formatMoney(-70_000)}`);
+  });
+
+  it('saves a typed cost with the job', async () => {
+    const onSubmit = vi.fn<(values: RepairJobInput) => Promise<void>>().mockResolvedValue();
+    await render(<RepairFormHost opened onClose={vi.fn()} onSubmit={onSubmit} jobToEdit={JOB} />);
+    await typeInto(costBox('Replace screen'), '900');
+    await act(async () => button('Update Ticket')?.click());
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0][0].items).toMatchObject([{ laborCostCents: 90_000 }]);
+  });
+
+  it('shows a locked job only the costs that were recorded, and none to type', async () => {
+    const locked = (laborCostCents: number | undefined) => (
+      <RepairFormHost
+        opened
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+        jobToEdit={{
+          ...JOB,
+          status: 'delivered',
+          items: [{ ...JOB.items[0], laborCostCents }],
+        }}
+      />
+    );
+    await render(locked(undefined));
+    expect(costBox('Replace screen')).toBeNull();
+    await act(async () => root.render(null));
+    await render(locked(90_000));
+    expect(costBox('Replace screen')?.disabled).toBe(true);
+  });
+
+  it('keeps a saved cost when a repair service is hidden', async () => {
+    api.services.mockResolvedValue([{ ...SCREEN_SERVICE, laborCostCents: 100_000 }]);
+    api.update.mockResolvedValue({ ...SCREEN_SERVICE, active: false, version: 2 });
+    await render(<RepairServicesSection />);
+    await vi.waitFor(() => expect(text()).toContain(`Cost to shop ${formatMoney(100_000)}`));
+    await act(async () =>
+      document
+        .querySelector<HTMLButtonElement>('button[aria-label="Hide Screen replacement"]')
+        ?.click()
+    );
+    await vi.waitFor(() =>
+      expect(api.update).toHaveBeenCalledWith(
+        'rst_screen',
+        expect.objectContaining({ laborCostCents: 100_000, active: false })
+      )
+    );
+  });
+
+  it('saves, changes and forgets the usual cost of a repair service', async () => {
+    api.update.mockResolvedValue({ ...SCREEN_SERVICE, version: 2 });
+    await render(<RepairServicesSection />);
+    await vi.waitFor(() => expect(text()).toContain('Screen replacement'));
+    // No cost saved: the card says nothing about one.
+    expect(text()).not.toContain('Cost to shop');
+
+    const open = async () => {
+      await act(async () =>
+        document
+          .querySelector<HTMLButtonElement>('button[aria-label="Edit Screen replacement"]')
+          ?.click()
+      );
+      await vi.waitFor(() => expect(labelled('Usual cost to shop')).not.toBeNull());
+    };
+
+    await open();
+    await typeInto(labelled('Usual cost to shop'), '1200');
+    await act(async () => button('Save Changes')?.click());
+    await vi.waitFor(() => expect(api.update).toHaveBeenCalledTimes(1));
+    expect(api.update.mock.calls[0][1].laborCostCents).toBe(120_000);
+
+    await vi.waitFor(() => expect(labelled('Usual cost to shop')).toBeNull());
+    await open();
+    await typeInto(labelled('Usual cost to shop'), '');
+    await act(async () => button('Save Changes')?.click());
+    await vi.waitFor(() => expect(api.update).toHaveBeenCalledTimes(2));
+    expect(api.update.mock.calls[1][1].laborCostCents).toBeUndefined();
+  });
+
   it('filters products by category chip in the search dropdown', async () => {
     mockCategories.push(
       createMockCategory({
@@ -937,7 +1066,7 @@ describe('repair jobs as items', () => {
     const costInput = document.querySelector<HTMLInputElement>('input[placeholder="0"]');
     expect(costInput).not.toBeNull();
     const priceInput = document.querySelector<HTMLInputElement>(
-      'input[aria-label="Price of Rare Power IC"]'
+      'input[aria-label="Price for one: Rare Power IC"]'
     );
     expect(priceInput).not.toBeNull();
   });

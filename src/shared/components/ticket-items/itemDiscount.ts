@@ -1,10 +1,12 @@
 import type { CalcDiscount } from '@/shared/types/discount';
 import type { ItemDiscount } from '@/wasm';
-import type { RepairItemDiscount } from '../types';
+
+/** What the server stores for a job line's discount: as typed, and what it comes to in cents. */
+export type AppliedDiscount = ItemDiscount & { amountCents: number };
 
 /**
  * The only translation between how the discount window talks (a percentage such as 12.5, or cents)
- * and how a repair item stores it (whole basis points, or cents). No money is worked out here.
+ * and how a job line stores it (whole basis points, or cents). No money is worked out here.
  */
 
 /** The discount as the window shows it; `null` for none. */
@@ -24,7 +26,7 @@ export const fromPopoverDiscount = (discount: CalcDiscount | null): ItemDiscount
 };
 
 /** A saved item's discount as typed, without the amount the server worked out. */
-export const typedDiscount = (saved: RepairItemDiscount): ItemDiscount =>
+export const typedDiscount = (saved: AppliedDiscount): ItemDiscount =>
   saved.type === 'percentage'
     ? { type: 'percentage', basisPoints: saved.basisPoints }
     : { type: 'fixed', cents: saved.cents };
