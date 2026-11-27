@@ -98,16 +98,18 @@ describe('settingsSections access', () => {
   const manager = { isAdmin: false, permissions: ['payees:manage', 'expenses:manage'] };
   const cashier = { isAdmin: false, permissions: ['cash_movements:create'] };
 
-  it('gives only notifications, payees and repair services a permission; the rest stay Admin-only', () => {
+  it('gives only notifications, payees and the service lists a permission; the rest stay Admin-only', () => {
     expect(SETTINGS_SECTIONS.filter((s) => s.permission !== undefined).map((s) => s.id)).toEqual([
       'notifications',
       'payees',
       'repair-services',
+      'print-services',
     ]);
     expect(SETTINGS_PERMISSIONS).toEqual([
       'notifications:view',
       'payees:manage',
       'repair_services:manage',
+      'print_services:manage',
     ]);
   });
 
@@ -125,6 +127,14 @@ describe('settingsSections access', () => {
         (s) => s.id
       )
     ).toEqual(['repair-services']);
+  });
+
+  it('shows someone with print_services:manage only the print services section', () => {
+    expect(
+      sectionsForAccess(web(), { isAdmin: false, permissions: ['print_services:manage'] }).map(
+        (s) => s.id
+      )
+    ).toEqual(['print-services']);
   });
 
   it('shows an Admin every section', () => {

@@ -12,7 +12,13 @@ export const printJobTypeLabel = (type: PrintJobType): string => {
       return t('Handbill / Flyer Printing');
     case 'banner':
       return t('Flex Banner / Outdoor Display');
+    case 'photo-framing':
+      return t('Photo & Framing');
     case 'custom':
       return t('Custom Artwork & Merchandise');
   }
 };
+
+/** The short name in the job list and on the bill. */
+export const printJobTypeName = (type: PrintJobType): string =>
+  type === 'photo-framing' ? 'Photo & Framing' : `${type.charAt(0).toUpperCase()}${type.slice(1)}`;

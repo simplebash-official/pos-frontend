@@ -95,10 +95,10 @@ const CommissionExample = ({ emp }: { emp: Employee }) => {
       {figures === undefined
         ? t('Working out the figures...')
         : t(
-            'A job priced at {price} with {parts} of parts leaves {profit} profit. This employee earns {commission}.'
+            'A job priced at {price} that costs the shop {cost} leaves {profit} profit. This employee earns {commission}.'
           )
             .replace('{price}', formatMoney(SAMPLE_PRICE_CENTS))
-            .replace('{parts}', formatMoney(SAMPLE_MATERIAL_CENTS))
+            .replace('{cost}', formatMoney(SAMPLE_MATERIAL_CENTS))
             .replace('{profit}', formatMoney(figures.profitCents))
             .replace('{commission}', formatMoney(figures.commissionCents))}
       {figures !== undefined &&
@@ -448,7 +448,7 @@ export const EmployeeDetailDrawer = ({
                                 </Text>
                                 <Text size="xs" c="dimmed" mt={4}>
                                   {percentage
-                                    ? `When this employee completes an assigned repair or print order, their commission is automatically calculated as ${emp.defaultSplitValue}% of the net profit (job revenue minus material/parts cost).`
+                                    ? `When this employee completes an assigned repair or print order, their commission is automatically calculated as ${emp.defaultSplitValue}% of the net profit (job revenue minus what the job cost the shop).`
                                     : `When this employee completes an assigned job, they receive a guaranteed flat commission of ${formatMoney(emp.defaultSplitValue)} regardless of order size or material cost.`}
                                 </Text>
                               </div>

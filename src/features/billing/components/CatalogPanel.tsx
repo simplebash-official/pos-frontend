@@ -56,18 +56,19 @@ import {
 } from '@/features/inventory/hooks/useCategories';
 import { fetchRepairs } from '@/features/repairs/api/repairsApi';
 import { billBlocker, billBlockerNotice } from '@/features/repairs';
+import { printBillBlockerNotice } from '@/features/print-jobs';
 import { fetchPrintJobs } from '@/features/print-jobs/api/printJobsApi';
 import { formatMoney } from '@/shared/lib/money';
-import { randomUuid } from '@/shared/lib/id';
+import { getErrorMessage } from '@/shared/lib/error';
 import { Product } from '@/features/inventory/types';
 import type { CartItem } from '@/store/slices/cartSlice';
 import { useCartItems, useCartSound } from '../hooks/useCart';
-import { useServiceJobCart } from '../hooks/useServiceJobCart';
 import { useCatalogSort } from '../hooks/useCatalogSort';
 import { CATALOG_SORTS, catalogSortParams } from '../lib/catalogSort';
 import { playScanSuccessSound, playErrorSound } from '../lib/audio';
 import { useCatalogColumns } from '../hooks/useCatalogColumns';
 import { getCategoryIconInfo, buildCatalogCategoryFilters } from '../lib/categoryIcons';
+import { printCartLine, printJobTitle } from '../lib/printCartLine';
 import { repairCartLine } from '../lib/repairCartLine';
 import { useLayoutTier } from '@/shared/hooks/useResponsive';
 import { useHasPermission, useIsAdmin } from '@/shared/hooks/usePermissions';
@@ -129,6 +130,34 @@ const SERVICE_JOB_SEARCH_FIELDS: readonly SearchField<CombinedServiceJob>[] = [
   { get: (j) => j.description, weight: 1, kind: 'text' },
 ];
 
+/** A full ticket number, as typed or read from a job slip's QR code. */
+const TICKET_NUMBER = /^(rep|prn|prt)-[\d-]+$/;
+
+type ScannedTicket = { line: CartItem } | { notice: { title: string; message: string } };
+
+/**
+ * The job a ticket number names, as its bill line or why it cannot be billed; `null` when there is
+ * no such job. Asked of the server per scan: a scanner presses Enter before a lazy list arrives,
+ * and the list stops at 200 jobs.
+ */
+const findTicket = async (ticket: string): Promise<ScannedTicket | null> => {
+  const isNamed = (job: { ticketNumber: string }) => job.ticketNumber.toLowerCase() === ticket;
+  if (ticket.startsWith('rep')) {
+    const repair = (await fetchRepairs({ search: ticket })).find(isNamed);
+    if (!repair) return null;
+    const blocker = billBlocker(repair);
+    return blocker === null
+      ? { line: repairCartLine(repair) }
+      : { notice: billBlockerNotice(blocker, repair) };
+  }
+  const printJob = (await fetchPrintJobs({ search: ticket })).find(isNamed);
+  if (!printJob) return null;
+  const blocker = billBlocker(printJob);
+  return blocker === null
+    ? { line: printCartLine(printJob) }
+    : { notice: printBillBlockerNotice(blocker, printJob) };
+};
+
 const QuickAddItemModal = lazy(() =>
   import('./QuickAddItemModal').then((m) => ({ default: m.QuickAddItemModal }))
 );
@@ -159,7 +188,6 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     updateQty,
   } = useCartItems();
   const { soundEnabled } = useCartSound();
-  const addServiceJob = useServiceJobCart();
 
   const tier = useLayoutTier();
   const isAdmin = useIsAdmin();
@@ -222,21 +250,18 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     };
   }, [catalogCategoryFilters, loadingCategories]);
 
-  const termLower = scanQuery.trim().toLowerCase();
-  const isScanningRep = termLower.startsWith('rep');
-  const isScanningPrt = termLower.startsWith('prt');
   const isJobsMode = mode === 'jobs';
 
   const { data: repairs = [], isLoading: loadingRepairs } = useQuery({
     queryKey: queryKeys.repairs.all,
     queryFn: () => fetchRepairs(),
-    enabled: isScanningRep || isJobsMode,
+    enabled: isJobsMode,
   });
 
   const { data: printJobs = [], isLoading: loadingPrintJobs } = useQuery({
     queryKey: queryKeys.printJobs.all,
     queryFn: () => fetchPrintJobs(),
-    enabled: isScanningPrt || isJobsMode,
+    enabled: isJobsMode,
   });
 
   // Permanently auto-focus scanner input
@@ -280,33 +305,22 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     }
 
     for (const p of printJobs) {
-      if (p.status === 'delivered' || p.status === 'cancelled') continue;
-      if (p.billedInvoiceNumber !== undefined) continue;
+      const blocker = billBlocker(p);
+      if (blocker !== null && blocker !== 'no_work') continue;
       list.push({
         id: p.id,
         ticketNumber: p.ticketNumber,
         type: 'print',
-        title: `${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
+        title: printJobTitle(p),
         description: '',
         customerName: p.customerName,
         customerPhone: p.customerPhone,
         status: p.status,
-        costCents: p.estimatedCostCents,
+        // A job with no items on it has no price yet.
+        costCents: p.items.length === 0 ? undefined : p.priceCents,
         assignedEmployeeId: p.assignedEmployeeId,
         assignedEmployeeName: p.assignedEmployeeName,
-        line: {
-          id: `svc-print-${p.id}-${randomUuid()}`,
-          productId: p.id,
-          name: `${p.ticketNumber}: ${p.jobType.charAt(0).toUpperCase() + p.jobType.slice(1)} printing (${p.quantity} units)`,
-          sku: p.ticketNumber,
-          unitPriceCents: p.estimatedCostCents,
-          quantity: 1,
-          discount: null,
-          sourceType: 'print',
-          sourceTicketNumber: p.ticketNumber,
-          assignedEmployeeId: p.assignedEmployeeId,
-          assignedEmployeeName: p.assignedEmployeeName,
-        },
+        line: printCartLine(p),
       });
       printCount += 1;
     }
@@ -342,7 +356,7 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
       return;
     }
 
-    addServiceJob(job.line, job.customerName, job.customerPhone);
+    add(job.line);
 
     playScanSuccessSound(soundEnabled);
     if (!isMobile) {
@@ -561,63 +575,38 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
     const term = scanQuery.trim().toLowerCase();
     if (!term) return;
 
-    // 1. Check if term is a Ticket # (e.g. REP-1001 or PRT-2001)
-    if (term.startsWith('rep-') || term.startsWith('rep')) {
-      const matchRep = repairs.find((r) => r.ticketNumber.toLowerCase() === term);
-      if (matchRep) {
-        const blocker = billBlocker(matchRep);
-        if (blocker !== null) {
+    // 1. A ticket number (e.g. REP-000004). A SKU spelled the same way stays a product.
+    if (TICKET_NUMBER.test(term) && !products.some((p) => p.sku.toLowerCase() === term)) {
+      const scannedTicket = scanQuery.trim();
+      // Empty the box before asking, so the next scan isn't appended to this one.
+      clearScan();
+      setShakeError(null);
+      let found: ScannedTicket | null;
+      try {
+        found = await findTicket(term);
+      } catch (error) {
+        playErrorSound(soundEnabled);
+        notify.error({
+          title: term.startsWith('rep')
+            ? t('Could not add the repair')
+            : t('Could not add the print job'),
+          message: `${scannedTicket}: ${getErrorMessage(error)}`,
+        });
+        return;
+      }
+      if (found !== null) {
+        if ('line' in found) {
+          add(found.line);
+          playScanSuccessSound(soundEnabled);
+        } else {
           playErrorSound(soundEnabled);
-          notify.error({
-            ...billBlockerNotice(blocker, matchRep),
-          });
-          setScanQuery('');
-          setSearch('');
-          setSelectedIndex(null);
-          return;
+          notify.error(found.notice);
         }
-        addServiceJob(repairCartLine(matchRep), matchRep.customerName, matchRep.customerPhone);
-        playScanSuccessSound(soundEnabled);
-        setScanQuery('');
-        setSearch('');
-        setSelectedIndex(null);
-        setShakeError(null);
         return;
       }
-    }
-
-    if (
-      term.startsWith('prn-') ||
-      term.startsWith('prn') ||
-      term.startsWith('prt-') ||
-      term.startsWith('prt')
-    ) {
-      const matchPrt = printJobs.find((p) => p.ticketNumber.toLowerCase() === term);
-      if (matchPrt) {
-        addServiceJob(
-          {
-            id: `svc-print-${matchPrt.id}-${randomUuid()}`,
-            productId: matchPrt.id,
-            name: `${matchPrt.ticketNumber}: ${matchPrt.jobType.toUpperCase()} Printing`,
-            sku: matchPrt.ticketNumber,
-            unitPriceCents: matchPrt.estimatedCostCents,
-            quantity: 1,
-            discount: null,
-            sourceType: 'print',
-            sourceTicketNumber: matchPrt.ticketNumber,
-            assignedEmployeeId: matchPrt.assignedEmployeeId,
-            assignedEmployeeName: matchPrt.assignedEmployeeName,
-          },
-          matchPrt.customerName,
-          matchPrt.customerPhone
-        );
-        playScanSuccessSound(soundEnabled);
-        setScanQuery('');
-        setSearch('');
-        setSelectedIndex(null);
-        setShakeError(null);
-        return;
-      }
+      // No such job: put the text back (unless more was typed) and treat it as any other scan.
+      setScanQuery((current) => current || scannedTicket);
+      setSearch((current) => current || scannedTicket);
     }
 
     // 2a. Exact SKU match (a SKU isn't purely digits, so compare it as typed).
@@ -1639,7 +1628,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                               <Text size="10px" c="dimmed" tt="uppercase" fw={700}>
                                 {t('Estimated Total')}
                               </Text>
-                              {job.costCents !== undefined && job.costCents > 0 ? (
+                              {/* A print job with items has a price, even when it is zero. */}
+                              {job.costCents !== undefined &&
+                              (job.costCents > 0 || job.type === 'print') ? (
                                 <Text
                                   size="sm"
                                   fw={800}
@@ -1650,7 +1641,9 @@ export const CatalogPanel = memo(function CatalogPanel({ mode, onModeChange }: C
                                 </Text>
                               ) : (
                                 <Badge size="xs" color="yellow" variant="light">
-                                  {t('Pending diagnosis')}
+                                  {job.type === 'print'
+                                    ? t('Not priced yet')
+                                    : t('Pending diagnosis')}
                                 </Badge>
                               )}
                             </Box>

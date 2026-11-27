@@ -23,13 +23,15 @@ export interface WarrantyListFilter {
   invoiceKey?: string;
   /** The warranties of one repair job's items. */
   repairKey?: string;
+  /** The warranties of one print job's items. */
+  printJobKey?: string;
   /** Those in force and ending within the week, ending soonest first. */
   state?: 'expiring_soon';
 }
 
 /**
- * The warranties of one customer, invoice or repair job (newest first), or those ending this
- * week (soonest first); one page of 200.
+ * The warranties of one customer, invoice, repair job or print job (newest first), or those
+ * ending this week (soonest first); one page of 200.
  */
 export const fetchWarranties = async (filter: WarrantyListFilter): Promise<WarrantyListResult> => {
   const response = await apiClient.get<ApiResponse<WarrantyListResult>>('/warranties', {

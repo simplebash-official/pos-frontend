@@ -102,15 +102,11 @@ export const fetchRepairs = async (params?: FetchRepairsParams): Promise<RepairJ
   return response.data.repairs.map(toRepairJob);
 };
 
-/**
- * Every repair ticket, looping past the backend's 200-per-page cap — for the
- * unfiltered `RepairJobList` default view, which must not silently truncate
- * a shop's ticket history once it grows past one page.
- */
-export const fetchAllRepairs = async (): Promise<RepairJob[]> => {
+/** Every matching ticket, looping past the backend's 200-per-page cap. */
+const fetchEveryPage = async (filter: { customerKey?: string }): Promise<RepairJob[]> => {
   const fetchPage = async (page: number) => {
     const response = await apiClient.get<ApiResponse<RepairListResponseData>>('/repairs', {
-      params: { page, limit: 200 },
+      params: { page, limit: 200, ...filter },
     });
     return response.data;
   };
@@ -123,6 +119,16 @@ export const fetchAllRepairs = async (): Promise<RepairJob[]> => {
   }
   return repairs.map(toRepairJob);
 };
+
+/**
+ * Every repair ticket — for the unfiltered `RepairJobList` default view, which must not silently
+ * truncate a shop's ticket history once it grows past one page.
+ */
+export const fetchAllRepairs = (): Promise<RepairJob[]> => fetchEveryPage({});
+
+/** Every repair ticket of one customer. */
+export const fetchCustomerRepairs = (customerKey: string): Promise<RepairJob[]> =>
+  fetchEveryPage({ customerKey });
 
 export const createRepairJobRaw = async (input: RepairJobInput): Promise<RepairJob> => {
   const response = await apiClient.post<ApiResponse<BackendRepair>>('/repairs', input);

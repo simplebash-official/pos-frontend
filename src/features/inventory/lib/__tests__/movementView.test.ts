@@ -6,6 +6,7 @@ describe('movementLabel', () => {
     ['sale', 'Sold'],
     ['purchase_receipt', 'Received from supplier'],
     ['repair_part_consumption', 'Used in a repair'],
+    ['print_part_consumption', 'Used in a print job'],
     ['manual_adjustment', 'Adjusted by hand'],
     ['return', 'Returned'],
     ['opening_balance', 'Opening balance'],

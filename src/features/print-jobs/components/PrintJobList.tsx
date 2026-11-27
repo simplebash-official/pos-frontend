@@ -1,6 +1,6 @@
 import { t } from '@/shared/i18n/t';
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Button, Group, Text, Stack, Paper, Select } from '@mantine/core';
 import {
@@ -16,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { notify } from '@/shared/notify';
 import { DataTable, Column } from '@/shared/components/DataTable';
 import { PrintJob, PrintJobInput } from '../types';
+import { printJobTypeName } from '../lib/jobTypeLabels';
 import {
   useAllPrintJobs,
   useCreatePrintJob,
@@ -24,7 +25,7 @@ import {
 } from '../hooks/usePrintJobs';
 import { usePrintJobStats } from '../hooks/usePrintJobStats';
 import { fetchPrintJobs } from '../api/printJobsApi';
-import { PRINT_JOB_STATUS, PRINT_JOB_STATUS_LABELS } from '@/constants';
+import { PRINT_JOB_STATUS, PRINT_JOB_STATUS_LABELS, ROUTES } from '@/constants';
 import { formatMoney } from '@/shared/lib/money';
 import {
   AmountCell,
@@ -46,7 +47,7 @@ import { queryKeys } from '@/api/queryKeys';
 import { PrintJobDrawer } from './PrintJobDrawer';
 import { TicketInvoicePreview } from '@/features/billing/components/TicketInvoicePreview';
 import type { Invoice } from '@/features/billing/types';
-import { JobReceiptModal, receiptTarget, type JobReceiptTarget } from '@/features/job-receipts';
+import { JobReceiptModal, useJobSlips } from '@/features/job-receipts';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { PERMISSIONS } from '@/constants/permissions';
 import {
@@ -86,11 +87,12 @@ const applyLocalPrintJobFilters = (items: PrintJob[], f: PrintJobFilters) =>
 
 export const PrintJobList = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [panel, setPanel] = useState<JobPanelState>(CLOSED_PANEL);
-  const [receiptJob, setReceiptJob] = useState<JobReceiptTarget | null>(null);
   const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
   const canPrintReceipt = useHasPermission(PERMISSIONS.PRINT_JOBS_WRITE);
+  const slips = useJobSlips(panel.open && panel.mode === 'create', canPrintReceipt);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [datePreset, setDatePreset] = useState('all');
@@ -157,12 +159,10 @@ export const PrintJobList = () => {
       const newJob = await createMutation.mutateAsync(values);
       notify.success({
         title: 'Print Order Created',
-        message: newJob.ticketNumber
-          ? `Saved order ${newJob.ticketNumber} successfully`
-          : 'Order saved — it will get its number once back online',
+        message: `Saved order ${newJob.ticketNumber} successfully`,
       });
-      // The customer gets a receipt for what they handed in.
-      if (canPrintReceipt) setReceiptJob(receiptTarget('print', newJob));
+      // The customer gets a slip for what they handed in, once the form is left.
+      slips.saved(newJob);
     }
   };
 
@@ -183,7 +183,12 @@ export const PrintJobList = () => {
       align: 'left',
       sortable: true,
       render: (job) => (
-        <TicketCell ticketNumber={job.ticketNumber} createdAt={job.createdAt} terms={terms} />
+        <TicketCell
+          ticketNumber={job.ticketNumber}
+          createdAt={job.createdAt}
+          reworkOf={job.kind.kind === 'warranty_rework' ? job.kind.originalTicketNumber : undefined}
+          terms={terms}
+        />
       ),
     },
     {
@@ -202,13 +207,31 @@ export const PrintJobList = () => {
       header: 'Type & Qty',
       align: 'left',
       sortable: true,
-      render: (job) => (
-        <TwoLineCell
-          title={`${job.jobType} · ${job.quantity}`}
-          primary={job.jobType.charAt(0).toUpperCase() + job.jobType.slice(1)}
-          secondary={`${job.quantity} ${t('units')}`}
-        />
-      ),
+      render: (job) => {
+        const kind = printJobTypeName(job.jobType);
+        const units = `${job.quantity} ${t('units')}`;
+        return (
+          <TwoLineCell
+            title={
+              job.note === undefined ? `${kind} · ${units}` : `${kind} · ${units} · ${job.note}`
+            }
+            primary={kind}
+            secondary={
+              job.note === undefined ? (
+                units
+              ) : (
+                // The note's first line, cut to fit; hovering the cell shows all of it.
+                <>
+                  <div>{units}</div>
+                  <Text size="xs" fs="italic" truncate>
+                    {job.note}
+                  </Text>
+                </>
+              )
+            }
+          />
+        );
+      },
     },
     {
       key: 'assignedEmployeeName',
@@ -235,11 +258,18 @@ export const PrintJobList = () => {
       ),
     },
     {
-      key: 'estimatedCostCents',
+      key: 'priceCents',
       header: 'Amount',
       align: 'right',
       sortable: true,
-      render: (job) => <AmountCell cents={job.estimatedCostCents} />,
+      render: (job) =>
+        job.kind.kind === 'warranty_rework' ? (
+          <AmountCell note={t('Free (warranty)')} />
+        ) : job.items.length > 0 ? (
+          <AmountCell cents={job.priceCents} />
+        ) : (
+          <AmountCell note={t('Not priced yet')} />
+        ),
     },
     ...(canPrintReceipt
       ? [
@@ -249,7 +279,7 @@ export const PrintJobList = () => {
             align: 'right' as const,
             render: (job: PrintJob) => (
               <RowActions>
-                <JobSlipAction onClick={() => setReceiptJob(receiptTarget('print', job))} />
+                <JobSlipAction onClick={() => slips.print(job)} />
               </RowActions>
             ),
           },
@@ -262,7 +292,7 @@ export const PrintJobList = () => {
       <PageHeader
         title={t('Print Jobs & Sublimation Orders')}
         description={t(
-          'Custom mug, t-shirt, handbill, banner printing order tracking & operator profit split'
+          'Mug, t-shirt, handbill and banner printing, photo framing, and operator profit split'
         )}
         action={
           <Group gap="sm">
@@ -387,12 +417,14 @@ export const PrintJobList = () => {
         job={openJob}
         onSubmit={handleFormSubmit}
         loading={createMutation.isPending || updateMutation.isPending}
-        onJobSlip={canPrintReceipt ? (job) => setReceiptJob(receiptTarget('print', job)) : null}
+        savedTickets={slips.savedTickets}
+        onJobSlip={canPrintReceipt ? (job) => slips.print(job) : null}
         onPrintInvoice={setInvoiceToPrint}
-        closeOnEscape={receiptJob === null && invoiceToPrint === null}
+        onBill={(job) => navigate(`${ROUTES.BILLING}?billPrint=${job.id}`)}
+        closeOnEscape={slips.target === null && invoiceToPrint === null}
       />
 
-      <JobReceiptModal job={receiptJob} onClose={() => setReceiptJob(null)} />
+      <JobReceiptModal target={slips.target} onClose={slips.close} />
       <TicketInvoicePreview invoice={invoiceToPrint} onClose={() => setInvoiceToPrint(null)} />
     </Stack>
   );

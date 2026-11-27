@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '@mantine/core';
-import { IconEdit, IconPlus, IconPrinter } from '@tabler/icons-react';
+import { Button, Text } from '@mantine/core';
+import { IconArrowRight, IconEdit, IconPlus, IconPrinter } from '@tabler/icons-react';
 import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 import { DrawerFooter, RichDrawer } from '@/shared/components/drawer';
 import { t } from '@/shared/i18n/t';
@@ -19,10 +19,13 @@ export interface PrintJobDrawerProps {
   /** Saves the form: a new order when `job` is `null`, otherwise a change to `job`. */
   onSubmit: (values: PrintJobInput) => Promise<void>;
   loading: boolean;
+  /** Tickets saved since the new-job form was opened. */
+  savedTickets: readonly string[];
   /** `null` when this person may not print job slips. */
   onJobSlip: ((job: PrintJob) => void) | null;
   /** Opens the preview of the invoice that billed the job. */
   onPrintInvoice: (invoice: Invoice) => void;
+  onBill: (job: PrintJob) => void;
   /** Pass `false` while a window opened over this panel is up, so Escape closes only that window. */
   closeOnEscape: boolean;
 }
@@ -37,11 +40,14 @@ export const PrintJobDrawer = ({
   job,
   onSubmit,
   loading,
+  savedTickets,
   onJobSlip,
   onPrintInvoice,
+  onBill,
   closeOnEscape,
 }: PrintJobDrawerProps) => {
   const editing = panel.open && panel.mode !== 'view';
+  const [viewNested, setViewNested] = useState(false);
   const [pendingLeave, setPendingLeave] = useState<JobPanelState | null>(null);
 
   const backToJob =
@@ -75,7 +81,7 @@ export const PrintJobDrawer = ({
         : {
             icon: <IconPlus size={20} />,
             text: t('Create New Print Order'),
-            subtitle: t('Who it is for, what to print and the price'),
+            subtitle: t('Who it is for, what to print and what will be charged'),
           };
 
   return (
@@ -84,8 +90,8 @@ export const PrintJobDrawer = ({
         data={panel}
         opened={panel.open}
         onClose={() => leave(closePanel(panel))}
-        width="standard"
-        closeOnEscape={closeOnEscape && !editor.nestedOpen && pendingLeave === null}
+        width="wide"
+        closeOnEscape={closeOnEscape && !viewNested && !editor.nestedOpen && pendingLeave === null}
         title={title}
         footer={(shown) =>
           shown.mode === 'view' ? (
@@ -94,18 +100,44 @@ export const PrintJobDrawer = ({
                 job={job}
                 onEdit={(target) => onPanelChange(editPanel(target.id))}
                 onPrintInvoice={onPrintInvoice}
+                onBill={onBill}
               />
             )
           ) : (
-            <DrawerFooter>
+            <DrawerFooter
+              start={
+                shown.mode === 'create' && savedTickets.length > 0 ? (
+                  <Text size="xs" c="dimmed" role="status">
+                    {`${t('Saved this visit')}: ${savedTickets.join(', ')}`}
+                  </Text>
+                ) : undefined
+              }
+            >
               <Button
                 variant="default"
                 size="sm"
                 disabled={loading}
                 onClick={() => leave(backToJob)}
               >
-                {t('Cancel')}
+                {shown.mode === 'create' && savedTickets.length > 0 && !editor.dirty
+                  ? t('Done')
+                  : t('Cancel')}
               </Button>
+              {shown.mode === 'create' && (
+                <Button
+                  variant="light"
+                  color="blue"
+                  size="sm"
+                  loading={loading}
+                  onClick={() =>
+                    editor.form.onSubmit(editor.addAnother, (errors) =>
+                      editor.focusFirstError(Object.keys(errors))
+                    )()
+                  }
+                >
+                  {t('Save & add another')}
+                </Button>
+              )}
               <Button
                 type="submit"
                 form={PRINT_JOB_FORM_ID}
@@ -115,6 +147,22 @@ export const PrintJobDrawer = ({
               >
                 {shown.mode === 'edit' ? t('Update Print Job') : t('Create Print Job')}
               </Button>
+              {editor.billJobId !== null && (
+                <Button
+                  variant="light"
+                  color="blue"
+                  size="sm"
+                  loading={loading}
+                  onClick={() =>
+                    editor.form.onSubmit((values) =>
+                      editor.billAfterSave(values, editor.billJobId ?? '')
+                    )()
+                  }
+                  rightSection={<IconArrowRight size={16} />}
+                >
+                  {t('Update & bill')}
+                </Button>
+              )}
             </DrawerFooter>
           )
         }
@@ -122,10 +170,15 @@ export const PrintJobDrawer = ({
         {(shown) =>
           shown.mode === 'view' ? (
             job === null ? null : (
-              <PrintJobDetailView key={job.id} job={job} onJobSlip={onJobSlip} />
+              <PrintJobDetailView
+                key={job.id}
+                job={job}
+                onJobSlip={onJobSlip}
+                onNestedWindowChange={setViewNested}
+              />
             )
           ) : (
-            <PrintJobEditForm editor={editor} />
+            <PrintJobEditForm editor={editor} job={shown.mode === 'edit' ? job : null} />
           )
         }
       </RichDrawer>

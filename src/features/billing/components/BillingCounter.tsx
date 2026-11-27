@@ -12,7 +12,7 @@ import {
   useCartSound,
 } from '../hooks/useCart';
 import { useCheckout } from '../hooks/useCheckout';
-import { useBillRepairLink } from '../hooks/useBillRepairLink';
+import { useBillJobLink } from '../hooks/useBillJobLink';
 import { usePrint } from '../hooks/usePrint';
 import { BillingRegions } from './BillingRegions';
 import type { BillingPane } from './BillingTabBar';
@@ -43,6 +43,8 @@ import { BILLING_HEADER_HEIGHT } from '@/app/layout/constants';
 import { getDeviceId } from '@/api/deviceId';
 import { useCurrentSession } from '../hooks/useRegisterSession';
 import { effectiveHandover, isTicketLine } from '../lib/handover';
+import { useAttachJobCustomer, useBillTo } from '../hooks/useBillTo';
+import { queryKeys } from '@/api/queryKeys';
 import { handleSessionClosingError } from '../lib/sessionClosing';
 import { OpenSessionModal } from './sessions/OpenSessionModal';
 import { t } from '@/shared/i18n/t';
@@ -62,6 +64,8 @@ export const BillingCounter = () => {
   const { items, updateQty, remove } = useCartItems();
   const { customerId, customerName, customerPhone, customerAddress, attachCustomer } =
     useCartCustomer();
+  const billTo = useBillTo();
+  useAttachJobCustomer(billTo);
   // Every figure on this screen is the server's answer for the cart as it stands.
   const { data: checkout, isCurrent, discountType, discountValue, setDiscount } = useCheckout();
   const {
@@ -154,7 +158,7 @@ export const BillingCounter = () => {
     };
   }, [fillQuotationKey, allProducts, dispatch, setSearchParams]);
 
-  useBillRepairLink();
+  useBillJobLink();
 
   // Lets F2 run PaymentPanel's own guardrailed primary-action path (see the F2 shortcut below)
   // instead of jumping straight to checkout and bypassing the credit-limit confirmation.
@@ -252,6 +256,7 @@ export const BillingCounter = () => {
             // A paid sale hands over now unless told otherwise; a credit sale cannot be completed
             // while a ticket line is unchosen (the payment panel blocks it).
             handover: sourceTicketKey ? (effectiveHandover(i, isCredit) ?? undefined) : undefined,
+            confirmedJobCustomerKey: billTo.confirmedKeyOfLine(i.id),
             ...(isResolved
               ? {}
               : {
@@ -345,6 +350,11 @@ export const BillingCounter = () => {
         return;
       }
       const apiErr = err as ApiError;
+      if (apiErr?.code === 'TICKET_OTHER_CUSTOMER') {
+        // The job moved to another customer since it was read: read it again so the card asks.
+        void queryClient.invalidateQueries({ queryKey: queryKeys.repairs.all });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.printJobs.all });
+      }
       const isNotFound = apiErr?.statusCode === 404;
       notify.error({
         title: isNotFound ? 'Item No Longer Available' : 'Checkout Error',
@@ -388,6 +398,7 @@ export const BillingCounter = () => {
     isMobile,
     activeSession,
     queryClient,
+    billTo,
   ]);
 
   // Global Cashier Focus & Hotkeys
@@ -666,6 +677,8 @@ export const BillingCounter = () => {
           } else {
             attachCustomer(null, null);
           }
+          // Picking someone while a job is on the bill answers "who is this bill for?".
+          if (billTo.status !== 'none') billTo.keepPayer();
           focusScanBar(true);
         }}
       />

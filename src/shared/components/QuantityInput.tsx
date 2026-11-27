@@ -124,7 +124,8 @@ export const QuantityInput = ({
           styles={{
             input: {
               textAlign: 'center',
-              width: 44,
+              // Grows with the number, so a quantity of thousands stays readable.
+              width: `max(44px, ${String(value).length + 2}ch)`,
               height: '100%',
               fontWeight: 600,
               padding: 0,

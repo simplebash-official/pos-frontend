@@ -70,8 +70,8 @@ const supplierColumns: ReportColumn<SupplierClaimRow>[] = [
 ];
 
 /**
- * How often what the shop sells and repairs comes back under warranty, how suppliers handle what
- * is sent to them, and what free rework cost. Every figure is the server's.
+ * How often what the shop sells, repairs and prints comes back under warranty, how suppliers
+ * handle what is sent to them, and what free rework cost. Every figure is the server's.
  */
 export const WarrantySection = ({
   params,
@@ -144,7 +144,7 @@ export const WarrantySection = ({
 
       <ChartCard
         title="Rework cost by month"
-        subtitle="Parts used on free warranty repairs"
+        subtitle="What free warranty repair and print work cost the shop"
         loading={loading}
         empty={reworkChart.length === 0}
       >
@@ -160,13 +160,13 @@ export const WarrantySection = ({
 
       <ReportTable
         title="Claim rate by technician"
-        subtitle="Repairs each technician did that came back"
+        subtitle="Repair and print work each person did that came back"
         rows={data === undefined ? [] : data.byTechnician}
         keyFor={(r, i) => `${r.name === undefined ? 'none' : r.name}-${i}`}
         loading={loading}
         csvName="warranty-claims-by-technician"
         periodLabel={periodLabel}
-        emptyText={t('No repair with a warranty in this period.')}
+        emptyText={t('No repair or print work with a warranty in this period.')}
         columns={rateColumns({
           header: 'Technician',
           cell: (r) => (r.name === undefined ? t('Not assigned') : r.name),
@@ -195,6 +195,18 @@ export const WarrantySection = ({
         periodLabel={periodLabel}
         emptyText={t('No repair with a warranty in this period.')}
         columns={rateColumns({ header: 'Repair work', cell: (r) => r.name })}
+      />
+
+      <ReportTable
+        title="Claim rate by print work"
+        subtitle="Print work done in this period with a warranty, and how much came back"
+        rows={data === undefined ? [] : data.byPrintWork}
+        keyFor={(r, i) => `${r.name === undefined ? 'none' : r.name}-${i}`}
+        loading={loading}
+        csvName="warranty-claims-by-print-work"
+        periodLabel={periodLabel}
+        emptyText={t('No print work with a warranty in this period.')}
+        columns={rateColumns({ header: 'Print work', cell: (r) => r.name })}
       />
 
       <ReportTable

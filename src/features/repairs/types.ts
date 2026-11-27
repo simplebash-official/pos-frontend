@@ -2,6 +2,7 @@ import type { JobStatus } from '@/constants';
 import type { SplitType } from '@/features/employees/types';
 import type { ProductWarranty } from '@/features/warranties/types';
 import type { CustomerRef, AssignmentInfo } from '@/shared/types/ticketInput';
+import type { AppliedDiscount } from '@/shared/components/ticket-items/itemDiscount';
 import type { ItemDiscount } from '@/wasm';
 
 /** Where an item's part came from, as the server stores it. */
@@ -18,21 +19,20 @@ export type RepairPart =
     }
   | { source: 'outside'; name: string };
 
-/** What the server stores for an item's discount: as typed, and what it comes to in cents. */
-export type RepairItemDiscount = ItemDiscount & { amountCents: number };
-
 /** One piece of work on a job: labour, at most one part, and its own warranty. */
 export interface RepairItem {
   key: string;
   description: string;
   laborCents: number;
+  /** What the work cost the shop; absent when none is recorded. */
+  laborCostCents?: number;
   part?: RepairPart;
   /** What the customer pays for the part (always 0 on a warranty rework). */
   partCents: number;
   /** What the part cost the shop; worked out by the server for a stock part. */
   partCostCents: number;
   /** The discount off this item; absent for none. Never on a warranty rework. */
-  discount?: RepairItemDiscount;
+  discount?: AppliedDiscount;
   warranty: ProductWarranty;
 }
 
@@ -46,6 +46,8 @@ export interface RepairItemInput {
   key?: string;
   description: string;
   laborCents: number;
+  /** What the work cost the shop; left out to record none. */
+  laborCostCents?: number;
   part?: RepairPartInput;
   /** The discount typed on this item; the server works out what it comes to. */
   discount?: ItemDiscount;
@@ -79,7 +81,7 @@ export interface RepairJob {
   items: RepairItem[];
   /** Labour and part prices less the item discounts: what the customer pays. Server-worked. */
   priceCents: number;
-  /** What the parts cost the shop. Server-worked. */
+  /** What the job cost the shop: parts and recorded work costs. Server-worked. */
   costCents: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
@@ -110,6 +112,8 @@ export interface RepairService {
   key: string;
   name: string;
   laborCents: number;
+  /** What the work usually costs the shop; absent when none is saved. */
+  laborCostCents?: number;
   warranty: ProductWarranty;
   active: boolean;
   version: number;
@@ -120,6 +124,8 @@ export interface RepairService {
 export interface SaveRepairServiceInput {
   name: string;
   laborCents: number;
+  /** Required so a save cannot forget it; `undefined` saves no cost. */
+  laborCostCents: number | undefined;
   warranty: ProductWarranty;
   active: boolean;
 }

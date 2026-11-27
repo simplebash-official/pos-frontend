@@ -20,7 +20,7 @@ import {
   outcomeLabel,
   type ClaimAction,
 } from '../lib/claimView';
-import type { ClaimDecision, SupplierOutcome, WarrantyClaim } from '../types';
+import type { ClaimDecision, SupplierOutcome, WarrantyClaim, WarrantySourceType } from '../types';
 import { ChoiceCards } from './ChoiceCards';
 import { ManagerApprovalModal } from './ManagerApprovalModal';
 import { ReplacementEndsNote, ReplacementPicker } from './ReplacementPicker';
@@ -31,6 +31,8 @@ export type DialogAction = Exclude<ClaimAction, 'refund'>;
 export interface ClaimStepDialogProps {
   claim: WarrantyClaim;
   action: DialogAction;
+  /** Where the claimed warranty came from; a job opened from the claim is of the same kind. */
+  source: WarrantySourceType;
   /** The end date of the claimed warranty (`undefined` for lifetime), shown for a replacement. */
   warrantyEndsOn: string | undefined;
   onClose: () => void;
@@ -112,6 +114,7 @@ const optional = (text: string): string | undefined =>
 export const ClaimStepDialog = ({
   claim,
   action,
+  source,
   warrantyEndsOn,
   onClose,
 }: ClaimStepDialogProps) => {
@@ -386,9 +389,13 @@ export const ClaimStepDialog = ({
           loading={loading}
         >
           <Text size="sm">
-            {t(
-              'A repair job is opened to redo the work for free, for the same customer and device. The technician adds any parts used there, and hands it back from the repair screen.'
-            )}
+            {source === 'print'
+              ? t(
+                  'A print job is opened to redo the work for free, for the same customer. Add any materials used there, and hand it back from the print job screen.'
+                )
+              : t(
+                  'A repair job is opened to redo the work for free, for the same customer and device. The technician adds any parts used there, and hands it back from the repair screen.'
+                )}
           </Text>
           {error !== null && (
             <Text size="sm" c="red" role="alert" mt="xs">
@@ -398,8 +405,15 @@ export const ClaimStepDialog = ({
         </ConfirmDialog>
       );
 
-    case 'paidRepair': {
-      // A walk-in sale leaves the claim without a customer, so the repair job needs one here.
+    case 'paidRepair':
+    case 'paidPrintJob': {
+      const print = action === 'paidPrintJob';
+      const title = print ? t('Make a paid print job?') : t('Make a paid repair job?');
+      const confirmLabel = print ? t('Make the print job') : t('Make the repair job');
+      const explanation = print
+        ? t('The fault is not covered. A print job the customer pays for is made for this order.')
+        : t('The fault is not covered. A repair job the customer pays for is made for this item.');
+      // A walk-in sale leaves the claim without a customer, so the new job needs one here.
       const needsCustomer =
         claim.customerKey === undefined &&
         (claim.customerName === undefined || claim.customerPhone === undefined);
@@ -407,24 +421,22 @@ export const ClaimStepDialog = ({
         return (
           <>
             <StepModal
-              title={t('Make a paid repair job?')}
-              confirmLabel={t('Make the repair job')}
+              title={title}
+              confirmLabel={confirmLabel}
               loading={loading}
               error={error}
               onClose={close}
               closeOnEscape={!pickerOpen}
               disabled={customer === null}
               onSubmit={() => {
-                if (customer !== null) run({ kind: 'paidRepair', key, customerKey: customer.key });
+                if (customer !== null) run({ kind: action, key, customerKey: customer.key });
               }}
             >
-              <Text size="sm">
-                {t(
-                  'The fault is not covered. A repair job the customer pays for is made for this item.'
-                )}
-              </Text>
+              <Text size="sm">{explanation}</Text>
               <Text size="sm" c="dimmed">
-                {t('This sale had no customer, so choose who the repair job is for.')}
+                {print
+                  ? t('This sale had no customer, so choose who the print job is for.')
+                  : t('This sale had no customer, so choose who the repair job is for.')}
               </Text>
               <CustomerChoiceCard
                 customer={
@@ -447,17 +459,13 @@ export const ClaimStepDialog = ({
         <ConfirmDialog
           opened
           onClose={close}
-          onConfirm={() => run({ kind: 'paidRepair', key })}
-          title={t('Make a paid repair job?')}
-          confirmLabel={t('Make the repair job')}
+          onConfirm={() => run({ kind: action, key })}
+          title={title}
+          confirmLabel={confirmLabel}
           confirmColor="blue"
           loading={loading}
         >
-          <Text size="sm">
-            {t(
-              'The fault is not covered. A repair job the customer pays for is made for this item.'
-            )}
-          </Text>
+          <Text size="sm">{explanation}</Text>
           {error !== null && (
             <Text size="sm" c="red" role="alert" mt="xs">
               {error}

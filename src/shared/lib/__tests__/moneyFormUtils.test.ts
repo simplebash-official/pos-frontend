@@ -107,7 +107,11 @@ describe('moneyFormUtils conversions', () => {
         jobType: 'mug',
         quantity: 2,
         status: 'received',
-        estimatedCostCents: 20000,
+        note: 'Logo on both sides',
+        kind: { kind: 'standard' },
+        items: [],
+        priceCents: 0,
+        costCents: 0,
         createdAt: '2026-08-20T10:00:00.000Z',
       };
 
@@ -116,32 +120,47 @@ describe('moneyFormUtils conversions', () => {
       expect(form.customerName).toBe('Bob');
       expect(form.customerPhone).toBe('0711122334');
       expect(form.jobType).toBe('mug');
-      expect(form.estimatedPriceRupees).toBe(200);
+      expect(form.note).toBe('Logo on both sides');
     });
 
     it('converts form values to print job input with cents conversion', () => {
-      const input = toPrintJobInput({
+      const values = {
         customerKey: 'cus_test',
         customerName: 'Charlie',
         customerPhone: '0712345678',
-        jobType: 't-shirt',
+        jobType: 't-shirt' as const,
         quantity: 5,
         promisedReadyAt: null,
-        status: 'ready',
-        estimatedPriceRupees: 1000,
-        materialCostRupees: 400,
+        status: 'ready' as const,
+        note: '  Two boxes  ',
         assignedEmployeeId: 'emp_2',
         assignedEmployeeName: 'David',
-        splitType: 'percentage',
+        splitType: 'percentage' as const,
         splitValueRupeesOrPercent: 15,
-      });
+      };
+      const items = [
+        {
+          description: 'Mug printing',
+          quantity: 5,
+          source: { type: 'service' as const, unitPriceCents: 20_000 },
+          warranty: { coverage: { kind: 'none' as const } },
+        },
+      ];
+      const input = toPrintJobInput(values, { items, note: true });
 
       expect(input.customer).toEqual({ customerKey: 'cus_test' });
       expect(input.jobType).toBe('t-shirt');
       expect(input.quantity).toBe(5);
-      expect(input.estimatedCostCents).toBe(100000);
-      expect(input.materialCostCents).toBe(40000);
+      expect(input.items).toEqual(items);
+      expect(input.note).toBe('Two boxes');
       expect(input.assignment?.splitValue).toBe(15);
+
+      // Untouched items and note are not sent, so the saved ones stay as they are.
+      const unchanged = toPrintJobInput(values, { items: undefined, note: false });
+      expect(unchanged.items).toBeUndefined();
+      expect(unchanged.note).toBeUndefined();
+      // A typed note that was wiped is sent empty, which removes it.
+      expect(toPrintJobInput({ ...values, note: '   ' }, { items, note: true }).note).toBe('');
     });
   });
 

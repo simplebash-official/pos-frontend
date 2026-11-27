@@ -187,7 +187,13 @@ export interface StockAdjustmentResult {
 }
 
 export type StockMovementType =
-  'sale' | 'purchase_receipt' | 'repair_part_consumption' | 'manual_adjustment' | 'return' | string;
+  | 'sale'
+  | 'purchase_receipt'
+  | 'repair_part_consumption'
+  | 'print_part_consumption'
+  | 'manual_adjustment'
+  | 'return'
+  | string;
 
 export interface StockMovement extends SyncedEntityFields {
   id: string;

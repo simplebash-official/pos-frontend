@@ -11,7 +11,9 @@ import {
   type RepairTotals,
 } from '@/wasm';
 import type { RepairItem, RepairItemInput, RepairKind, RepairService } from '../types';
-import { typedDiscount } from './repairDiscount';
+import { costBoxValue, typedCostCents } from '@/shared/components/ticket-items/costToShop';
+import { typedDiscount } from '@/shared/components/ticket-items/itemDiscount';
+import { NO_COVER } from '@/shared/components/ticket-items/warranty';
 
 /**
  * The repair form's items while they are being typed. Money boxes hold rupees as typed; a stock
@@ -56,6 +58,8 @@ export interface FeeItemDraft {
   kind: 'fee';
   description: string;
   feeRupees: number | string;
+  /** What the work cost the shop, as typed; empty when none is recorded. */
+  costRupees: number | string;
   /** The discount typed on this item; `null` for none. */
   discount: ItemDiscount | null;
   warranty: ProductWarranty;
@@ -63,8 +67,6 @@ export interface FeeItemDraft {
 
 /** A repair item is either a physical Part or an Other Fee. */
 export type ItemDraft = PartItemDraft | FeeItemDraft;
-
-const NO_COVER: ProductWarranty = { coverage: { kind: 'none' } };
 
 let nextUid = 0;
 const uid = (): string => {
@@ -84,6 +86,7 @@ export const blankFee = (): FeeItemDraft => ({
   kind: 'fee',
   description: '',
   feeRupees: '',
+  costRupees: '',
   discount: null,
   warranty: NO_COVER,
 });
@@ -97,6 +100,8 @@ export const itemFromService = (service: RepairService, rework: boolean): FeeIte
   kind: 'fee',
   description: service.name,
   feeRupees: rework ? '' : fromSavedCents(service.laborCents),
+  // A rework charges nothing, but the work still costs the shop.
+  costRupees: costBoxValue(service.laborCostCents),
   discount: null,
   warranty: rework ? NO_COVER : service.warranty,
 });
@@ -142,7 +147,7 @@ export const itemFromSaved = (item: RepairItem): ItemDraft => {
               source: 'outside',
               name: item.part.name,
               priceRupees: fromSavedCents(item.partCents),
-              costRupees: fromSavedCents(item.partCostCents),
+              costRupees: costBoxValue(item.partCostCents),
             },
       discount: item.discount === undefined ? null : typedDiscount(item.discount),
       warranty: item.warranty,
@@ -154,17 +159,28 @@ export const itemFromSaved = (item: RepairItem): ItemDraft => {
     kind: 'fee',
     description: item.description,
     feeRupees: fromSavedCents(item.laborCents),
+    costRupees: costBoxValue(item.laborCostCents),
     discount: item.discount === undefined ? null : typedDiscount(item.discount),
     warranty: item.warranty,
   };
 };
 
-/** Convert a list of saved items into editable drafts, grouping identical items and splitting legacy dual-cost items if needed. */
+/**
+ * Saved items as editable rows. Identical stock parts share one row, and an item holding both a
+ * part and work (a fee or its cost) gives the work a fee row of its own.
+ */
 export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
   const drafts: ItemDraft[] = [];
   for (const item of items) {
     if (item.part !== undefined) {
-      if (item.part.source === 'stock' && !item.part.serialNumber && item.discount === undefined) {
+      const hasWork = item.laborCents > 0 || item.laborCostCents !== undefined;
+      // An item with work is never merged into another row: the work would be lost on save.
+      if (
+        item.part.source === 'stock' &&
+        !item.part.serialNumber &&
+        item.discount === undefined &&
+        !hasWork
+      ) {
         const stockPart = item.part;
         const existingIndex = drafts.findIndex(
           (d) =>
@@ -210,18 +226,18 @@ export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
                 source: 'outside',
                 name: item.part.name,
                 priceRupees: fromSavedCents(item.partCents),
-                costRupees: fromSavedCents(item.partCostCents),
+                costRupees: costBoxValue(item.partCostCents),
               },
         discount: item.discount === undefined ? null : typedDiscount(item.discount),
         warranty: item.warranty,
       });
-      // If a legacy item had both a part and labor charges, preserve the service fee:
-      if (item.laborCents > 0) {
+      if (hasWork) {
         drafts.push({
           uid: uid(),
           kind: 'fee',
           description: `${item.description} (${t('Service fee')})`,
           feeRupees: fromSavedCents(item.laborCents),
+          costRupees: costBoxValue(item.laborCostCents),
           discount: null,
           warranty: NO_COVER,
         });
@@ -233,6 +249,7 @@ export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
         kind: 'fee',
         description: item.description,
         feeRupees: fromSavedCents(item.laborCents),
+        costRupees: costBoxValue(item.laborCostCents),
         discount: item.discount === undefined ? null : typedDiscount(item.discount),
         warranty: item.warranty,
       });
@@ -240,12 +257,6 @@ export const itemsFromSaved = (items: RepairItem[]): ItemDraft[] => {
   }
   return drafts;
 };
-
-/** The warranty as it is saved: no type or terms without cover, terms trimmed. */
-export const cleanWarranty = (warranty: ProductWarranty): ProductWarranty =>
-  warranty.coverage.kind === 'none'
-    ? { coverage: warranty.coverage }
-    : { ...warranty, terms: warranty.terms?.trim() };
 
 /** What a fee row charges, in cents. */
 export const feePriceCents = (draft: FeeItemDraft): number => rupees(draft.feeRupees);
@@ -271,46 +282,6 @@ export const partLabel = (part: PartDraft, rework: boolean): string => {
   const price =
     rework || part.priceRupees === '' ? '' : ` · ${formatMoney(rupees(part.priceRupees))}`;
   return `${part.name}${price}`;
-};
-
-/** Calculates the profit margin for an outside part in rupees, after its item's discount. */
-export const calculateOutsideProfit = (
-  priceRupees: number | string,
-  costRupees: number | string,
-  discountCents: number | null,
-  quantity = 1
-): number | null => {
-  if (priceRupees === '' || costRupees === '' || discountCents === null) return null;
-  const p = Number(priceRupees);
-  const c = Number(costRupees);
-  if (isNaN(p) || isNaN(c)) return null;
-  return (p - c) * quantity - fromCents(discountCents);
-};
-
-/**
- * Calculates the total net profit on all parts (in cents), after each item's discount (the
- * server's figures, in the rows' order), or null if any stock part cost is unknown.
- */
-export const calculatePartsProfitCents = (
-  drafts: ItemDraft[],
-  itemDiscountsCents: number[]
-): number | null => {
-  let totalProfit = 0;
-  for (const [index, draft] of drafts.entries()) {
-    if (draft.kind === 'part') {
-      const qty = Math.max(1, draft.quantity);
-      if (draft.part.source === 'stock') {
-        if (draft.part.costCents === null) return null;
-        totalProfit += (draft.part.priceCents - draft.part.costCents) * qty;
-      } else {
-        const p = rupees(draft.part.priceRupees);
-        const c = rupees(draft.part.costRupees);
-        totalProfit += (p - c) * qty;
-      }
-      totalProfit -= itemDiscountsCents[index];
-    }
-  }
-  return totalProfit;
 };
 
 /** The rows as the server wants them; it prices stock parts itself. */
@@ -373,6 +344,7 @@ export const toItemInputs = (drafts: ItemDraft[], rework: boolean): RepairItemIn
         key: draft.key,
         description: draft.description.trim(),
         laborCents: rework ? 0 : rupees(draft.feeRupees),
+        laborCostCents: typedCostCents(draft.costRupees),
         part: undefined,
         discount: draft.discount === null ? undefined : draft.discount,
         warranty: rework ? NO_COVER : draft.warranty,
@@ -387,7 +359,7 @@ const STATUSES_NEEDING_WORK: JobStatus[] = ['ready', 'delivered'];
 export const negative = (value: number | string): boolean => value !== '' && Number(value) < 0;
 
 /** Which box of a row a problem is about, so the message can sit right under it. */
-export type RowProblemField = 'description' | 'fee' | 'part' | 'warranty';
+export type RowProblemField = 'description' | 'fee' | 'cost' | 'part' | 'warranty';
 
 export interface RowProblem {
   field: RowProblemField;
@@ -432,6 +404,9 @@ export const rowProblem = (draft: ItemDraft, rework: boolean): RowProblem | null
   }
   if (!rework && (draft.feeRupees === '' || Number(draft.feeRupees) <= 0)) {
     return { field: 'fee', message: t('Enter the fee amount.') };
+  }
+  if (negative(draft.costRupees)) {
+    return { field: 'cost', message: t('A cost cannot be below zero.') };
   }
   if (!rework) {
     const message = profileProblem(draft.warranty);
@@ -484,6 +459,8 @@ export interface LiveRepairTotals {
   totals: RepairTotals;
   /** What each row's discount comes to, in the rows' order; 0 for none. */
   itemDiscountsCents: number[];
+  /** Each row's price less its discount and cost, in the rows' order. */
+  itemProfitsCents: number[];
   /** What stops the job being saved (a discount that cannot stand). */
   blockers: RepairBlocker[];
   /** False while a newly chosen stock part has no cost yet, so profit cannot be shown. */
@@ -501,6 +478,7 @@ export const repairTotals = (drafts: ItemDraft[], rework: boolean): LiveRepairTo
       if (unitCost === null) costKnown = false;
       return {
         laborCents: undefined,
+        laborCostCents: undefined,
         partCents: unitPrice * qty,
         partCostCents: unitCost === null ? undefined : unitCost * qty,
         discount: draft.discount === null ? undefined : draft.discount,
@@ -508,6 +486,7 @@ export const repairTotals = (drafts: ItemDraft[], rework: boolean): LiveRepairTo
     }
     return {
       laborCents: rework || draft.feeRupees === '' ? undefined : rupees(draft.feeRupees),
+      laborCostCents: typedCostCents(draft.costRupees),
       partCents: undefined,
       partCostCents: undefined,
       discount: draft.discount === null ? undefined : draft.discount,
@@ -517,6 +496,7 @@ export const repairTotals = (drafts: ItemDraft[], rework: boolean): LiveRepairTo
   return {
     totals: preview.totals,
     itemDiscountsCents: preview.itemDiscountsCents,
+    itemProfitsCents: preview.itemProfitsCents,
     blockers: preview.blockers,
     costKnown,
   };

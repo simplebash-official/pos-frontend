@@ -1,10 +1,7 @@
 import { JOB_STATUS, type JobStatus } from '@/constants';
 import { t } from '@/shared/i18n/t';
+import type { StepBlock } from '@/shared/lib/jobStatusFlow';
 import type { RepairJob } from '../types';
-
-/** Why a repair cannot take its next step from the panel. The server refuses the same cases. */
-export type StepBlock =
-  { reason: 'needs_work'; message: string } | { reason: 'bill_first'; message: string };
 
 /**
  * What stops `job` moving to `next` with one tap, or `null` when nothing does:

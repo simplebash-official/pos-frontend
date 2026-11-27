@@ -26,6 +26,9 @@ import {
 
 import { useCartItems, useCartCustomer, useHeldCarts } from '../hooks/useCart';
 import { useCheckout } from '../hooks/useCheckout';
+import { useBillTo } from '../hooks/useBillTo';
+import { BillToCard } from './BillToCard';
+import { OtherCustomerJobs } from './OtherCustomerJobs';
 import { CartLineItem } from './CartLineItem';
 import { UndoRemoveBanner } from './UndoRemoveBanner';
 import { formatMoney } from '@/shared/lib/money';
@@ -89,6 +92,12 @@ export const CartPanel = memo(function CartPanel({
     attachCustomer,
   } = useCartCustomer();
   const { holdCurrentCart } = useHeldCarts();
+  const billTo = useBillTo();
+  /** The job owner's name on a line billed to someone else. */
+  const otherOwnerName = (lineId: string) => {
+    const owner = billTo.ownerOfLine(lineId);
+    return owner === undefined || billTo.stateOf(owner.key) === 'same' ? undefined : owner.name;
+  };
 
   const isMobile = useIsMobile();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
@@ -311,9 +320,12 @@ export const CartPanel = memo(function CartPanel({
         </Group>
       </Group>
 
-      {/* 2. Customer Strip (Always present directly below header) */}
-      <Box py="xs">
-        {customerName ? (
+      {/* 2. Customer Strip (Always present directly below header). With several job owners and
+          other jobs listed it scrolls by itself, so the bill's lines always keep room. */}
+      <Box py="xs" style={{ flexShrink: 0, maxHeight: '50%', overflowY: 'auto' }}>
+        {billTo.status !== 'none' ? (
+          <BillToCard billTo={billTo} onOpenCustomerPicker={onOpenCustomerPicker} />
+        ) : customerName ? (
           <Paper p="xs" withBorder style={{ backgroundColor: 'var(--mantine-color-body)' }}>
             <Group justify="space-between" align="center" wrap="nowrap">
               <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 0, flex: 1 }}>
@@ -398,6 +410,7 @@ export const CartPanel = memo(function CartPanel({
             </Group>
           </Paper>
         )}
+        <OtherCustomerJobs />
       </Box>
 
       {/* 3. 4-Second Line Removal Undo Banner */}
@@ -450,6 +463,7 @@ export const CartPanel = memo(function CartPanel({
                 }
                 isNewest={index === 0}
                 isCredit={isCredit}
+                jobOwnerName={otherOwnerName(item.id)}
                 handoverLocked={Boolean(completedSale)}
                 onUpdateQty={updateQty}
                 onUpdateLineDiscount={updateLineDisc}

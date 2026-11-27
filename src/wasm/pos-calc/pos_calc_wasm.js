@@ -40,6 +40,20 @@ export function calc_earnings(request) {
 }
 
 /**
+ * Works out what a print job charges and costs from its lines, each line's discount, and what
+ * stops it being saved.
+ * @param {CalcPrintJobRequest} request
+ * @returns {PrintJobPreview}
+ */
+export function calc_print_job(request) {
+    const ret = wasm.calc_print_job(request);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
+    }
+    return takeFromExternrefTable0(ret[0]);
+}
+
+/**
  * Works out a quotation; its validity date is checked against today in the browser.
  * @param {CalcQuotationRequest} request
  * @returns {CalcQuotationReply}

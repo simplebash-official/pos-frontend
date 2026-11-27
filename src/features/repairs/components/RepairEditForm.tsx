@@ -12,6 +12,8 @@ import {
   IconWallet,
 } from '@tabler/icons-react';
 import { ROUTES } from '@/constants';
+import { ItemCountBadge } from '@/shared/components/ticket-items/ItemCountBadge';
+import { JobWarrantiesPanel } from '@/shared/components/ticket-items/JobWarrantiesPanel';
 import { AssigneeSection } from '@/features/employees/components/AssigneeSection';
 import { CustomerChoiceCard } from '@/features/customers/components/CustomerChoiceCard';
 import { CustomerPickerModal } from '@/features/customers/components/CustomerPickerModal';
@@ -23,9 +25,7 @@ import { formatMoney } from '@/shared/lib/money';
 import type { RepairEditor } from '../hooks/useRepairEditor';
 import { countItems } from '../lib/repairItems';
 import type { RepairJob } from '../types';
-import { ItemCountBadge } from './ItemCountBadge';
 import { RepairItemsEditor } from './RepairItemsEditor';
-import { RepairWarrantiesPanel } from './RepairWarrantiesPanel';
 
 /** The form's id, so the panel's pinned Save button can submit it from outside. */
 export const REPAIR_FORM_ID = 'repair-form';
@@ -214,7 +214,6 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 readOnly={workLocked}
                 showProblems={tried}
                 totals={totals}
-                profit={{ priced, profitCents, hint: priceHint }}
                 onNestedWindowChange={setNestedOpen}
               />
               {tried && workProblem !== null && (
@@ -231,7 +230,10 @@ export const RepairEditForm = ({ editor, job }: RepairEditFormProps) => {
                 </Alert>
               )}
               {workLocked && job !== null && !rework && job.status === 'delivered' && (
-                <RepairWarrantiesPanel repairKey={job.id} onNestedWindowChange={setNestedOpen} />
+                <JobWarrantiesPanel
+                  job={{ repairKey: job.id }}
+                  onNestedWindowChange={setNestedOpen}
+                />
               )}
             </Stack>
           </DrawerCard>

@@ -7,8 +7,9 @@ import { PERMISSIONS } from '@/constants/permissions';
 import { useHasPermission } from '@/shared/hooks/usePermissions';
 import { t } from '@/shared/i18n/t';
 
-export interface RepairWarrantiesPanelProps {
-  repairKey: string;
+export interface JobWarrantiesPanelProps {
+  /** The repair job or print job whose warranties are shown. */
+  job: { repairKey: string } | { printJobKey: string };
   /** The claim window is open, so the job window must not close on Escape. */
   onNestedWindowChange: (open: boolean) => void;
 }
@@ -17,13 +18,10 @@ export interface RepairWarrantiesPanelProps {
  * The warranties a handed-back job's work came with, each with where it stands and, while it
  * can still be claimed, a "Start claim" button that opens the claim window right here.
  */
-export const RepairWarrantiesPanel = ({
-  repairKey,
-  onNestedWindowChange,
-}: RepairWarrantiesPanelProps) => {
+export const JobWarrantiesPanel = ({ job, onNestedWindowChange }: JobWarrantiesPanelProps) => {
   const navigate = useNavigate();
   const canView = useHasPermission(PERMISSIONS.WARRANTIES_VIEW);
-  const warranties = useWarranties(canView ? { repairKey } : null);
+  const warranties = useWarranties(canView ? job : null);
 
   if (!canView) return null;
 

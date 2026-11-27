@@ -1,7 +1,7 @@
 import { apiClient } from '@/api/client';
 import { ApiResponse } from '@/shared/types/common';
 import { calc_earnings } from '@/wasm';
-import { PrintJob, PrintJobInput, PrintJobType } from '../types';
+import { PrintJob, PrintJobInput, PrintJobItem, PrintJobKind, PrintJobType } from '../types';
 
 // Client-side computed employee earnings via `calc_earnings` from WASM.
 export interface BackendPrintJob {
@@ -16,8 +16,11 @@ export interface BackendPrintJob {
   promisedReadyAt?: string;
   isOverdue?: boolean;
   status: PrintJob['status'];
-  estimatedCostCents: number;
-  materialCostCents?: number;
+  note?: string;
+  kind: PrintJobKind;
+  items: PrintJobItem[];
+  priceCents: number;
+  costCents: number;
   assignedEmployeeId?: string;
   assignedEmployeeName?: string;
   splitType?: 'percentage' | 'fixed';
@@ -47,8 +50,11 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   promisedReadyAt: job.promisedReadyAt,
   isOverdue: job.isOverdue,
   status: job.status,
-  estimatedCostCents: job.estimatedCostCents,
-  materialCostCents: job.materialCostCents,
+  note: job.note,
+  kind: job.kind,
+  items: job.items,
+  priceCents: job.priceCents,
+  costCents: job.costCents,
   assignedEmployeeId: job.assignedEmployeeId,
   assignedEmployeeName: job.assignedEmployeeName,
   splitType: job.splitType,
@@ -56,8 +62,9 @@ export const toPrintJob = (job: BackendPrintJob): PrintJob => ({
   billedInvoiceKey: job.billedInvoiceKey,
   billedInvoiceNumber: job.billedInvoiceNumber,
   employeeEarningsCents: calc_earnings({
-    priceCents: job.estimatedCostCents,
-    materialCostCents: job.materialCostCents ?? 0,
+    // A job with no items has no price yet, so no commission either.
+    priceCents: job.items.length === 0 ? undefined : job.priceCents,
+    materialCostCents: job.costCents,
     splitType: job.splitType,
     splitValue: job.splitValue ?? 0,
   }).commissionCents,
@@ -89,15 +96,11 @@ export const fetchPrintJobs = async (params?: FetchPrintJobsParams): Promise<Pri
   return response.data.printJobs.map(toPrintJob);
 };
 
-/**
- * Every print job, looping past the backend's 200-per-page cap — for the
- * unfiltered `PrintJobList` default view, which must not silently truncate
- * a shop's job history once it grows past one page.
- */
-export const fetchAllPrintJobs = async (): Promise<PrintJob[]> => {
+/** Every matching job, looping past the backend's 200-per-page cap. */
+const fetchEveryPage = async (filter: { customerKey?: string }): Promise<PrintJob[]> => {
   const fetchPage = async (page: number) => {
     const response = await apiClient.get<ApiResponse<PrintJobListResponseData>>('/print-jobs', {
-      params: { page, limit: 200 },
+      params: { page, limit: 200, ...filter },
     });
     return response.data;
   };
@@ -111,6 +114,16 @@ export const fetchAllPrintJobs = async (): Promise<PrintJob[]> => {
   return printJobs.map(toPrintJob);
 };
 
+/**
+ * Every print job — for the unfiltered `PrintJobList` default view, which must not silently
+ * truncate a shop's job history once it grows past one page.
+ */
+export const fetchAllPrintJobs = (): Promise<PrintJob[]> => fetchEveryPage({});
+
+/** Every print job of one customer. */
+export const fetchCustomerPrintJobs = (customerKey: string): Promise<PrintJob[]> =>
+  fetchEveryPage({ customerKey });
+
 export const createPrintJobRaw = async (input: PrintJobInput): Promise<PrintJob> => {
   const response = await apiClient.post<ApiResponse<BackendPrintJob>>('/print-jobs', input);
   return toPrintJob(response.data);
@@ -121,6 +134,12 @@ export const updatePrintJobRaw = async (
   input: Partial<PrintJobInput>
 ): Promise<PrintJob> => {
   const response = await apiClient.patch<ApiResponse<BackendPrintJob>>(`/print-jobs/${id}`, input);
+  return toPrintJob(response.data);
+};
+
+/** One job by its key. */
+export const fetchPrintJob = async (id: string): Promise<PrintJob> => {
+  const response = await apiClient.get<ApiResponse<BackendPrintJob>>(`/print-jobs/${id}`);
   return toPrintJob(response.data);
 };
 

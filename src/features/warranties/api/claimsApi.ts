@@ -85,14 +85,17 @@ export const resolveClaim = (
 export const returnClaimToCustomer = (key: string) => step(key, 'return', {});
 
 /** The customer is only needed when the claim's sale had none (a walk-in). */
-export interface PaidRepairCustomer {
+export interface PaidJobCustomer {
   customerKey?: string;
 }
 
-export const convertClaimToPaidRepair = (key: string, customer: PaidRepairCustomer) =>
+export const convertClaimToPaidRepair = (key: string, customer: PaidJobCustomer) =>
   step(key, 'paid-repair', customer);
 
-/** Opens the free rework job for a claim on repair work decided as a repair. */
+export const convertClaimToPaidPrintJob = (key: string, customer: PaidJobCustomer) =>
+  step(key, 'paid-print-job', customer);
+
+/** Opens the free rework job for a claim on repair or print work decided as a repair. */
 export const openClaimRework = (key: string) => step(key, 'rework', {});
 
 export const fetchConditions = async (): Promise<WarrantyCondition[]> => {

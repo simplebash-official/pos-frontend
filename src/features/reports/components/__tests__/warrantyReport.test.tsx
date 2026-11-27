@@ -47,6 +47,7 @@ const REPORT: WarrantyReport = {
   byRepairService: [
     { name: 'Replace screen', issuedCount: 1, claimedCount: 1, claimRateBps: 10_000 },
   ],
+  byPrintWork: [{ name: 'Mug printing', issuedCount: 2, claimedCount: 1, claimRateBps: 5000 }],
   byTechnician: [{ issuedCount: 1, claimedCount: 0, claimRateBps: 0 }],
   bySupplier: [
     {
@@ -129,6 +130,7 @@ describe('warranty report', () => {
     expect(text).toContain(formatMoney(15_000));
     expect(text).toContain('Galaxy A55');
     expect(text).toContain('Replace screen');
+    expect(text).toContain('Mug printing');
     expect(text).toContain('Not assigned');
     expect(document.querySelector('[data-testid="bars"]')?.textContent).toBe('Nov 2026=150');
   });

@@ -1,21 +1,17 @@
 import { apiClient } from '@/api/client';
-import type { JobReceiptKind, JobReceiptPaper, JobReceiptTarget } from '../types';
-
-const RECEIPT_ROUTE: Record<JobReceiptKind, string> = {
-  repair: 'repairs',
-  print: 'print-jobs',
-};
+import type { JobReceiptPaper } from '../types';
 
 /**
- * The receipt of a repair or print job as a PDF, with the design in force now (or `templateName`
- * for this print). The server always prints the job as it stands today.
+ * The slip of one or more jobs of one customer as a PDF, listed in the order given, with the
+ * design in force now (or `templateName` for this print). The server always prints the jobs as
+ * they stand today.
  */
 export const getJobReceipt = (
-  target: Pick<JobReceiptTarget, 'kind' | 'id'>,
+  jobIds: readonly string[],
   paper: JobReceiptPaper,
   templateName: string | undefined
 ): Promise<Blob> =>
-  apiClient.get<Blob>(`/${RECEIPT_ROUTE[target.kind]}/${target.id}/documents/job-receipt`, {
+  apiClient.get<Blob>('/job-receipts/document', {
     responseType: 'blob',
-    params: { paper, template: templateName },
+    params: { jobs: jobIds.join(','), paper, template: templateName },
   });
