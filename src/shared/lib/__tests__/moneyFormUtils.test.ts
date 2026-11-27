@@ -110,6 +110,7 @@ describe('moneyFormUtils conversions', () => {
         note: 'Logo on both sides',
         kind: { kind: 'standard' },
         items: [],
+        frames: [],
         priceCents: 0,
         costCents: 0,
         createdAt: '2026-08-20T10:00:00.000Z',
@@ -146,7 +147,7 @@ describe('moneyFormUtils conversions', () => {
           warranty: { coverage: { kind: 'none' as const } },
         },
       ];
-      const input = toPrintJobInput(values, { items, note: true });
+      const input = toPrintJobInput(values, { items, frames: undefined, note: true });
 
       expect(input.customer).toEqual({ customerKey: 'cus_test' });
       expect(input.jobType).toBe('t-shirt');
@@ -156,11 +157,17 @@ describe('moneyFormUtils conversions', () => {
       expect(input.assignment?.splitValue).toBe(15);
 
       // Untouched items and note are not sent, so the saved ones stay as they are.
-      const unchanged = toPrintJobInput(values, { items: undefined, note: false });
+      const unchanged = toPrintJobInput(values, {
+        items: undefined,
+        frames: undefined,
+        note: false,
+      });
       expect(unchanged.items).toBeUndefined();
       expect(unchanged.note).toBeUndefined();
       // A typed note that was wiped is sent empty, which removes it.
-      expect(toPrintJobInput({ ...values, note: '   ' }, { items, note: true }).note).toBe('');
+      expect(
+        toPrintJobInput({ ...values, note: '   ' }, { items, frames: undefined, note: true }).note
+      ).toBe('');
     });
   });
 

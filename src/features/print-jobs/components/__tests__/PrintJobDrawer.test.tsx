@@ -87,6 +87,7 @@ const makeJob = (overrides: Partial<PrintJob> = {}): PrintJob => ({
   status: 'received',
   kind: { kind: 'standard' },
   items: [],
+  frames: [],
   priceCents: 0,
   costCents: 0,
   createdAt: '2026-08-20T10:00:00.000Z',

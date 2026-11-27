@@ -82,6 +82,8 @@ export interface PrintJob {
   note?: string;
   kind: PrintJobKind;
   items: PrintJobItem[];
+  /** The frames the customer wants; empty on every other kind of order. */
+  frames: PrintJobFrame[];
   /** Every line's price less the line discounts: what the customer pays. Server-worked. */
   priceCents: number;
   /** What the lines cost the shop. Server-worked. */
@@ -108,6 +110,8 @@ export interface PrintJobInput {
   note?: string;
   /** The whole list of lines; left out of an update to keep them as they are. */
   items?: PrintJobItemInput[];
+  /** The whole list of wanted frames; omitted keeps the saved ones, `[]` removes them. */
+  frames?: PrintJobFrameInput[];
 }
 
 /** A shop's ready-made print service. */
@@ -133,4 +137,39 @@ export interface SavePrintServiceInput {
   unitCostCents: number | undefined;
   warranty: ProductWarranty;
   active: boolean;
+}
+
+/** A frame the shop makes: a size with a frame width. It has no price. */
+export interface PrintFrameSize {
+  id: string;
+  key: string;
+  /** The frame size as the shop writes it ("8x10", "A4"). Never changes. */
+  size: string;
+  /** The width of the frame itself in hundredths of an inch (75 is 0.75 inch). Never changes. */
+  widthHundredthsInch: number;
+  /** A hidden size is not offered on new jobs. */
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePrintFrameSizeInput {
+  size: string;
+  widthHundredthsInch: number;
+}
+
+/** A frame the customer wants on a photo and framing job. It prices nothing. */
+export interface PrintJobFrame {
+  frameSizeKey: string;
+  /** Copied from the frame size when it was picked. */
+  size: string;
+  widthHundredthsInch: number;
+  quantity: number;
+}
+
+/** A wanted frame as the form sends it; the server reads the size and width from the list. */
+export interface PrintJobFrameInput {
+  frameSizeKey: string;
+  quantity: number;
 }

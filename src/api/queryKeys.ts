@@ -134,6 +134,10 @@ export const queryKeys = {
     all: ['printServices'] as const,
     list: (includeHidden: boolean) => ['printServices', 'list', includeHidden] as const,
   },
+  printFrameSizes: {
+    all: ['printFrameSizes'] as const,
+    list: (includeHidden: boolean) => ['printFrameSizes', 'list', includeHidden] as const,
+  },
   printJobs: {
     all: ['printJobs'] as const,
     list: (filters?: Record<string, unknown>) => ['printJobs', 'list', filters] as const,

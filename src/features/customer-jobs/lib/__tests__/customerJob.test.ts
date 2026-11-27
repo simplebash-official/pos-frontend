@@ -39,6 +39,7 @@ const PRINT: PrintJob = {
   status: 'received',
   kind: { kind: 'standard' },
   items: [],
+  frames: [],
   priceCents: 0,
   costCents: 0,
   createdAt: '2026-11-21T05:00:00Z',

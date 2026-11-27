@@ -72,6 +72,7 @@ const PRINT_JOB: PrintJob = {
       warranty: { coverage: { kind: 'none' }, warrantyType: 'shop' },
     },
   ],
+  frames: [],
   priceCents: 4_750_000,
   costCents: 0,
   createdAt: '2026-11-03T05:00:00Z',
